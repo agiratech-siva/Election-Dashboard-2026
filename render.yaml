@@ -1,0 +1,7 @@
+services:
+  - type: web
+    name: eci-dashboard
+    runtime: python
+    plan: free
+    buildCommand: ""
+    startCommand: python serve.py

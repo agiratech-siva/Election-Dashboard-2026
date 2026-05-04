@@ -233,4 +233,5 @@ def run(server_class=HTTPServer, handler_class=RequestHandler, port=8081):
     httpd.server_close()
 
 if __name__ == '__main__':
-    run()
+    port = int(os.environ.get('PORT', '8081'))
+    run(port=port)
