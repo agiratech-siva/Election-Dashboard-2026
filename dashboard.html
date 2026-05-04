@@ -1,0 +1,2999 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TN 2026 · Live Election Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600;700&family=Noto+Sans+Tamil:wght@400;500;700&display=swap"
+    rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #F0F2F7;
+      --bg-1: #FFFFFF;
+      --bg-2: #F5F6FA;
+      --bg-3: #E8EBF2;
+      --border: #D6DAE8;
+      --border-2: #BCC2D4;
+      --text-1: #0D1220;
+      --text-2: #3D4A63;
+      --text-3: #7A87A3;
+      --accent: #2563EB;
+      --red: #DC2626;
+      --green: #16A34A;
+      --gold: #B45309;
+
+      --sans: 'IBM Plex Sans', system-ui, sans-serif;
+      --mono: 'IBM Plex Mono', ui-monospace, monospace;
+      --tamil: 'Noto Sans Tamil', sans-serif;
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html,
+    body {
+      background: var(--bg);
+      color: var(--text-1);
+      font-family: var(--sans);
+      font-size: 15px;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+      min-height: 100vh;
+    }
+
+    /* ── TOPBAR ── */
+    .topbar {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 0 24px;
+      height: 52px;
+      background: var(--bg-1);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, .06);
+    }
+
+    .topbar-title {
+      font-family: var(--mono);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-1);
+      white-space: nowrap;
+    }
+
+    .topbar-sub {
+      font-family: var(--tamil);
+      font-size: 12px;
+      color: var(--text-3);
+      white-space: nowrap;
+    }
+
+    .topbar-sep {
+      flex: 1;
+    }
+
+    .topbar-meta {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--text-3);
+    }
+
+    .live-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #FEE2E2;
+      border: 1px solid #FECACA;
+      color: var(--red);
+      font-family: var(--mono);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      padding: 4px 10px;
+      border-radius: 4px;
+    }
+
+    .live-chip::before {
+      content: '';
+      width: 7px;
+      height: 7px;
+      background: var(--red);
+      border-radius: 50%;
+      animation: blink 1.4s ease-in-out infinite;
+    }
+
+    @keyframes blink {
+
+      0%,
+      100% {
+        opacity: 1
+      }
+
+      50% {
+        opacity: .25
+      }
+    }
+
+    .refresh-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--bg-2);
+      border: 1px solid var(--border);
+      color: var(--text-2);
+      font-family: var(--mono);
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 6px 14px;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: all .15s;
+    }
+
+    .refresh-btn:hover:not(:disabled) {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: #EFF6FF;
+    }
+
+    .refresh-btn:disabled {
+      opacity: .5;
+      cursor: progress;
+    }
+
+    .spin {
+      width: 11px;
+      height: 11px;
+      border: 1.5px solid currentColor;
+      border-top-color: transparent;
+      border-radius: 50%;
+    }
+
+    .refresh-btn.loading .spin {
+      animation: spin .7s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    /* ── LAYOUT ── */
+    .app {
+      padding: 20px 24px 48px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      max-width: 1700px;
+      margin: 0 auto;
+    }
+
+    /* ── KPI ROW ── */
+    .kpi-row {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 14px;
+    }
+
+    .kpi {
+      background: var(--bg-1);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 18px 20px 16px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, .04);
+    }
+
+    .kpi::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: var(--kpi-accent, var(--border));
+      border-radius: 8px 8px 0 0;
+    }
+
+    .kpi-label {
+      font-family: var(--mono);
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--text-3);
+      margin-bottom: 10px;
+    }
+
+    .kpi-value {
+      font-family: var(--mono);
+      font-size: 48px;
+      font-weight: 700;
+      line-height: 1;
+      color: var(--kpi-color, var(--text-1));
+      font-feature-settings: "tnum";
+      letter-spacing: -0.03em;
+    }
+
+    .kpi-value.small-text {
+      font-size: 22px;
+      letter-spacing: -0.01em;
+      line-height: 1.15;
+    }
+
+    .kpi-sub {
+      font-size: 12px;
+      color: var(--text-3);
+      margin-top: 8px;
+      font-family: var(--mono);
+      letter-spacing: 0.04em;
+    }
+
+    /* ── SEAT BAR ── */
+    .seat-bar-card {
+      background: var(--bg-1);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 20px 24px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, .04);
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .card-title {
+      font-family: var(--mono);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--text-3);
+    }
+
+    .card-badge {
+      font-family: var(--mono);
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-2);
+      letter-spacing: 0.04em;
+    }
+
+    .seat-bar-outer {
+      position: relative;
+      height: 36px;
+      background: var(--bg-3);
+      border-radius: 4px;
+      overflow: visible;
+      display: flex;
+    }
+
+    .seat-bar-seg {
+      height: 100%;
+      transition: width 1s cubic-bezier(.2, .8, .2, 1);
+      position: relative;
+    }
+
+    .seat-bar-seg:first-child {
+      border-radius: 4px 0 0 4px;
+    }
+
+    .seat-bar-seg:last-child {
+      border-radius: 0 4px 4px 0;
+    }
+
+    .majority-needle {
+      position: absolute;
+      top: -12px;
+      bottom: -26px;
+      width: 2px;
+      background: var(--gold);
+      z-index: 10;
+      pointer-events: none;
+    }
+
+    .majority-needle::before {
+      content: '118';
+      position: absolute;
+      top: -18px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-family: var(--mono);
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--gold);
+      white-space: nowrap;
+      background: var(--bg-1);
+      padding: 0 5px;
+    }
+
+    .majority-needle::after {
+      content: 'MAJORITY';
+      position: absolute;
+      bottom: -20px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 0.15em;
+      color: var(--gold);
+      white-space: nowrap;
+      font-weight: 600;
+    }
+
+    .seat-bar-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px 24px;
+      margin-top: 40px;
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--text-2);
+    }
+
+    .seat-bar-legend span {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .seat-bar-legend i {
+      width: 10px;
+      height: 10px;
+      border-radius: 2px;
+      flex-shrink: 0;
+    }
+
+    .seat-bar-legend .ct {
+      color: var(--text-3);
+      margin-left: 2px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    /* ── TWO-COL ── */
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 400px;
+      gap: 14px;
+    }
+
+    /* ── PARTY TABLE ── */
+    .party-card {
+      background: var(--bg-1);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, .04);
+    }
+
+    .party-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .party-table thead th {
+      font-family: var(--mono);
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--text-3);
+      padding: 12px 16px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg-2);
+      white-space: nowrap;
+    }
+
+    .party-table thead th.r {
+      text-align: right;
+    }
+
+    .party-table tbody tr {
+      border-bottom: 1px solid var(--border);
+      transition: background .12s;
+    }
+
+    .party-table tbody tr:last-child {
+      border-bottom: none;
+    }
+
+    .party-table tbody tr:hover {
+      background: var(--bg-2);
+    }
+
+    .party-table tbody td {
+      padding: 11px 16px;
+      vertical-align: middle;
+    }
+
+    .pt-rank {
+      font-family: var(--mono);
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-3);
+      width: 36px;
+      font-feature-settings: "tnum";
+    }
+
+    .pt-chip {
+      display: inline-flex;
+      align-items: center;
+      font-family: var(--mono);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      padding: 4px 10px;
+      border-radius: 4px;
+      border-left: 4px solid var(--clr);
+      background: color-mix(in srgb, var(--clr) 10%, var(--bg-2));
+      color: var(--clr);
+      white-space: nowrap;
+      min-width: 68px;
+      justify-content: center;
+    }
+
+    .pt-name {
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--text-1);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 240px;
+    }
+
+    .pt-splitbar {
+      display: flex;
+      height: 6px;
+      background: var(--bg-3);
+      border-radius: 3px;
+      overflow: hidden;
+      margin-top: 5px;
+      min-width: 120px;
+      gap: 1px;
+    }
+
+    .pt-splitbar-won,
+    .pt-splitbar-lead {
+      height: 100%;
+      width: 0;
+      flex-shrink: 0;
+    }
+
+    .pt-splitbar-won {
+      border-radius: 3px 0 0 3px;
+    }
+
+    .pt-splitbar-lead {
+      border-radius: 0 3px 3px 0;
+    }
+
+    .pt-won-lead {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--text-3);
+      margin-top: 4px;
+      letter-spacing: 0.03em;
+    }
+
+    .pt-won-lead .won {
+      color: var(--clr);
+      font-weight: 700;
+    }
+
+    .pt-total {
+      font-family: var(--mono);
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--clr);
+      text-align: right;
+      font-feature-settings: "tnum";
+      letter-spacing: -0.03em;
+      line-height: 1;
+      white-space: nowrap;
+    }
+
+    .pt-total small {
+      display: block;
+      font-size: 10px;
+      font-weight: 500;
+      color: var(--text-3);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      margin-top: 3px;
+    }
+
+    .pt-won-num {
+      font-family: var(--mono);
+      font-size: 18px;
+      font-weight: 600;
+      text-align: right;
+      font-feature-settings: "tnum";
+      color: var(--text-2);
+    }
+
+    .pt-lead-num {
+      font-family: var(--mono);
+      font-size: 18px;
+      font-weight: 600;
+      text-align: right;
+      font-feature-settings: "tnum";
+      color: var(--text-3);
+    }
+
+    .pt-pct {
+      font-family: var(--mono);
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-3);
+      text-align: right;
+      white-space: nowrap;
+      min-width: 52px;
+      font-feature-settings: "tnum";
+    }
+
+    /* ── DONUT CARD ── */
+    .donut-card {
+      background: var(--bg-1);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, .04);
+    }
+
+    .donut-wrap {
+      position: relative;
+      width: 180px;
+      height: 180px;
+      margin: 0 auto;
+    }
+
+    .donut-wrap svg {
+      width: 100%;
+      height: 100%;
+      transform: rotate(-90deg);
+    }
+
+    .donut-center {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+
+    .donut-center .dv {
+      font-family: var(--mono);
+      font-size: 44px;
+      font-weight: 700;
+      color: var(--text-1);
+      line-height: 1;
+      letter-spacing: -0.03em;
+      font-feature-settings: "tnum";
+    }
+
+    .donut-center .dl {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--text-3);
+      margin-top: 5px;
+    }
+
+    .donut-list {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+
+    .donut-item {
+      display: grid;
+      grid-template-columns: 10px 1fr auto auto;
+      align-items: center;
+      gap: 9px;
+      font-family: var(--mono);
+      font-size: 12px;
+    }
+
+    .donut-item i {
+      width: 10px;
+      height: 10px;
+      border-radius: 2px;
+      flex-shrink: 0;
+    }
+
+    .donut-item .dn {
+      color: var(--text-2);
+      letter-spacing: 0.04em;
+      font-weight: 500;
+    }
+
+    .donut-item .dp {
+      color: var(--text-3);
+      font-size: 11px;
+      text-align: right;
+      min-width: 36px;
+    }
+
+    .donut-item .ds {
+      font-weight: 700;
+      font-size: 15px;
+      color: var(--text-1);
+      text-align: right;
+      min-width: 26px;
+      font-feature-settings: "tnum";
+    }
+
+    /* ── BOTTOM ROW ── */
+    .bottom-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    /* ── KNIFE TABLE ── */
+    .knife-card {
+      background: var(--bg-1);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, .04);
+    }
+
+    .knife-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .knife-table thead th {
+      font-family: var(--mono);
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--text-3);
+      padding: 12px 16px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg-2);
+      white-space: nowrap;
+    }
+
+    .knife-table thead th.r {
+      text-align: right;
+    }
+
+    .knife-table tbody tr {
+      border-bottom: 1px solid var(--border);
+      transition: background .12s;
+    }
+
+    .knife-table tbody tr:last-child {
+      border-bottom: none;
+    }
+
+    .knife-table tbody tr:hover {
+      background: var(--bg-2);
+    }
+
+    .knife-table tbody td {
+      padding: 10px 16px;
+      vertical-align: middle;
+    }
+
+    .k-num {
+      font-family: var(--mono);
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-3);
+      width: 32px;
+      font-feature-settings: "tnum";
+    }
+
+    .k-name {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-1);
+      white-space: nowrap;
+    }
+
+    .k-name small {
+      display: inline;
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--text-3);
+      letter-spacing: 0.08em;
+      margin-left: 5px;
+      font-weight: 400;
+    }
+
+    .k-party {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-family: var(--mono);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.07em;
+      color: var(--clr);
+      white-space: nowrap;
+    }
+
+    .k-party::before {
+      content: '';
+      width: 8px;
+      height: 8px;
+      border-radius: 2px;
+      background: var(--clr);
+      flex-shrink: 0;
+    }
+
+    .k-cand {
+      font-size: 11px;
+      color: var(--text-3);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 130px;
+      display: inline;
+      margin-left: 4px;
+    }
+
+    .k-margin {
+      text-align: right;
+      font-family: var(--mono);
+      font-size: 16px;
+      font-weight: 700;
+      font-feature-settings: "tnum";
+      color: var(--text-1);
+      white-space: nowrap;
+      letter-spacing: -0.01em;
+    }
+
+    .k-margin small {
+      display: inline;
+      font-size: 10px;
+      font-weight: 400;
+      color: var(--text-3);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-left: 3px;
+    }
+
+    .k-round {
+      font-family: var(--mono);
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-3);
+      white-space: nowrap;
+      letter-spacing: 0.06em;
+    }
+
+    /* ── KNIFE FILTER BAR ── */
+    .knife-filter-bar {
+      padding: 10px 16px;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg-2);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .knife-filter-input {
+      background: var(--bg-1);
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      padding: 7px 10px 7px 30px;
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--text-1);
+      outline: none;
+      transition: border-color .15s;
+      width: 160px;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='13' height='13' viewBox='0 0 24 24' fill='none' stroke='%237A87A3' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: 9px center;
+    }
+
+    .knife-filter-input::placeholder {
+      color: var(--text-3);
+    }
+
+    .knife-filter-input:focus {
+      border-color: var(--accent);
+    }
+
+    .knife-filter-select {
+      background: var(--bg-1);
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      padding: 7px 10px;
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--text-1);
+      outline: none;
+      transition: border-color .15s;
+      width: 160px;
+      cursor: pointer;
+    }
+
+    .knife-filter-select:focus {
+      border-color: var(--accent);
+    }
+
+    .knife-margin-group {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .knife-margin-label {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--text-3);
+      letter-spacing: 0.08em;
+      white-space: nowrap;
+    }
+
+    .knife-margin-input {
+      background: var(--bg-1);
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      padding: 7px 10px;
+      font-family: var(--mono);
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-1);
+      outline: none;
+      transition: border-color .15s;
+      width: 100px;
+      text-align: right;
+      -moz-appearance: textfield;
+    }
+
+    .knife-margin-input::-webkit-outer-spin-button,
+    .knife-margin-input::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
+    .knife-margin-input:focus {
+      border-color: var(--accent);
+    }
+
+    .knife-count {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--text-3);
+      letter-spacing: 0.06em;
+      white-space: nowrap;
+      margin-left: auto;
+    }
+
+    /* ── KNIFE PAGINATION ── */
+    .knife-pagination {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 16px;
+      border-top: 1px solid var(--border);
+      background: var(--bg-2);
+      flex-wrap: wrap;
+    }
+
+    .knife-page-btn {
+      font-family: var(--mono);
+      font-size: 12px;
+      font-weight: 600;
+      min-width: 32px;
+      height: 30px;
+      padding: 0 8px;
+      border-radius: 4px;
+      border: 1px solid var(--border);
+      background: var(--bg-1);
+      color: var(--text-2);
+      cursor: pointer;
+      transition: all .12s;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      letter-spacing: 0.04em;
+    }
+
+    .knife-page-btn:hover:not(:disabled) {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: #EFF6FF;
+    }
+
+    .knife-page-btn:disabled {
+      opacity: .4;
+      cursor: default;
+    }
+
+    .knife-page-btn.active {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+
+    .knife-page-info {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--text-3);
+      letter-spacing: 0.06em;
+      margin-left: auto;
+      white-space: nowrap;
+    }
+
+    /* ── DISTRICT CARD ── */
+    .district-card {
+      background: var(--bg-1);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, .04);
+    }
+
+    .district-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .district-table thead th {
+      font-family: var(--mono);
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--text-3);
+      padding: 12px 16px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg-2);
+      white-space: nowrap;
+    }
+
+    .district-table thead th.r {
+      text-align: right;
+    }
+
+    .district-table tbody tr {
+      border-bottom: 1px solid var(--border);
+      transition: background .12s;
+    }
+
+    .district-table tbody tr:last-child {
+      border-bottom: none;
+    }
+
+    .district-table tbody tr:hover {
+      background: var(--bg-2);
+    }
+
+    .district-table tbody td {
+      padding: 10px 16px;
+      vertical-align: middle;
+    }
+
+    .dt-num {
+      font-family: var(--mono);
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-3);
+      width: 32px;
+      font-feature-settings: "tnum";
+    }
+
+    .dt-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-1);
+      white-space: nowrap;
+      min-width: 150px;
+    }
+
+    .dt-name small {
+      display: block;
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--text-3);
+      letter-spacing: 0.1em;
+      margin-top: 2px;
+      font-weight: 400;
+    }
+
+    .dt-chip {
+      display: inline-flex;
+      align-items: center;
+      font-family: var(--mono);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      padding: 3px 9px;
+      border-radius: 3px;
+      background: color-mix(in srgb, var(--clr) 12%, var(--bg-2));
+      color: var(--clr);
+      border-left: 3px solid var(--clr);
+    }
+
+    .dt-sweep {
+      display: inline-block;
+      font-family: var(--mono);
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      background: var(--bg-3);
+      border: 1px solid var(--border-2);
+      color: var(--text-3);
+      padding: 2px 6px;
+      border-radius: 3px;
+      margin-left: 7px;
+      vertical-align: middle;
+    }
+
+    .dt-bar {
+      height: 12px;
+      background: var(--bg-3);
+      border-radius: 3px;
+      overflow: hidden;
+      display: flex;
+      min-width: 200px;
+    }
+
+    .dt-breakdown {
+      font-family: var(--mono);
+      font-size: 11px;
+      margin-top: 5px;
+      letter-spacing: 0.03em;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0 4px;
+      align-items: center;
+    }
+
+    .dt-count {
+      font-family: var(--mono);
+      font-size: 22px;
+      font-weight: 700;
+      text-align: right;
+      font-feature-settings: "tnum";
+      color: var(--text-1);
+      white-space: nowrap;
+      letter-spacing: -0.02em;
+    }
+
+    .dt-count small {
+      display: block;
+      font-size: 10px;
+      font-weight: 400;
+      color: var(--text-3);
+      letter-spacing: 0.1em;
+      margin-top: 2px;
+      text-transform: uppercase;
+    }
+
+    /* ── DISTRICT SEARCH ── */
+    .district-search-wrap {
+      padding: 12px 20px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .district-search {
+      width: 100%;
+      max-width: 320px;
+      background: var(--bg-2);
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      padding: 7px 12px 7px 34px;
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--text-1);
+      outline: none;
+      transition: border-color .15s;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%237A87A3' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: 10px center;
+    }
+
+    .district-search::placeholder {
+      color: var(--text-3);
+    }
+
+    .district-search:focus {
+      border-color: var(--accent);
+    }
+
+    /* ── DISTRICT ROW EXPAND ── */
+    .dt-row {
+      cursor: pointer;
+    }
+
+    .dt-row:hover {
+      background: var(--bg-2);
+    }
+
+    .dt-chevron {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 18px;
+      height: 18px;
+      font-size: 10px;
+      color: var(--text-3);
+      transition: transform .2s ease;
+    }
+
+    .dt-row.open .dt-chevron {
+      transform: rotate(90deg);
+      color: var(--accent);
+    }
+
+    /* ── DETAIL ROW ── */
+    .dt-detail-row {
+      display: none;
+    }
+
+    .dt-detail-row>td {
+      padding: 0 !important;
+      background: var(--bg-2);
+      border-bottom: 2px solid var(--border) !important;
+    }
+
+    .dt-detail-inner {
+      padding: 12px 16px 16px 48px;
+    }
+
+    /* ── MINI TABLE (inside expanded district) ── */
+    .dm-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .dm-table thead th {
+      font-family: var(--mono);
+      font-size: 9.5px;
+      font-weight: 600;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--text-3);
+      padding: 8px 12px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg-3);
+      white-space: nowrap;
+    }
+
+    .dm-table thead th.r {
+      text-align: right;
+    }
+
+    .dm-table tbody tr {
+      border-bottom: 1px solid var(--border);
+      transition: background .1s;
+    }
+
+    .dm-table tbody tr:last-child {
+      border-bottom: none;
+    }
+
+    .dm-table tbody tr:hover {
+      background: var(--bg-3);
+    }
+
+    .dm-table tbody td {
+      padding: 8px 12px;
+      vertical-align: middle;
+    }
+
+    .dm-ac {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--text-3);
+      white-space: nowrap;
+      letter-spacing: 0.06em;
+    }
+
+    .dm-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-1);
+      white-space: nowrap;
+    }
+
+    .dm-party {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-family: var(--mono);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      color: var(--clr);
+      white-space: nowrap;
+    }
+
+    .dm-party::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      border-radius: 1px;
+      background: var(--clr);
+      flex-shrink: 0;
+    }
+
+    .dm-cand {
+      font-size: 11px;
+      color: var(--text-2);
+      display: block;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 160px;
+      margin-top: 2px;
+    }
+
+    .dm-round {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--text-3);
+      white-space: nowrap;
+    }
+
+    .dm-margin {
+      text-align: right;
+      font-family: var(--mono);
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-1);
+      white-space: nowrap;
+      font-feature-settings: "tnum";
+      letter-spacing: -0.01em;
+    }
+
+    .dm-margin small {
+      display: block;
+      font-size: 9px;
+      font-weight: 400;
+      color: var(--text-3);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-top: 1px;
+    }
+
+    .dm-status {
+      font-family: var(--mono);
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      white-space: nowrap;
+    }
+
+    .dm-status.won {
+      color: var(--green);
+    }
+
+    .dm-status.counting {
+      color: var(--gold);
+    }
+
+    /* ── CONSTITUENCY CARD ── */
+    .constituency-card {
+      background: var(--bg-1);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, .04);
+    }
+
+    .constituency-search-wrap {
+      padding: 16px 20px 16px 20px;
+    }
+
+    .constituency-search {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 14px;
+      background: var(--bg-2);
+      color: var(--text-1);
+      outline: none;
+      transition: border-color .12s;
+    }
+
+    .constituency-search:focus {
+      border-color: var(--accent);
+      background: var(--bg-1);
+    }
+
+    .constituency-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .constituency-table thead th {
+      font-family: var(--mono);
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--text-3);
+      padding: 12px 16px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg-2);
+      white-space: nowrap;
+    }
+
+    .constituency-table thead th.r {
+      text-align: right;
+    }
+
+    .constituency-table tbody tr {
+      border-bottom: 1px solid var(--border);
+      transition: background .12s;
+    }
+
+    .constituency-table tbody tr:last-child {
+      border-bottom: none;
+    }
+
+    .constituency-table tbody tr:hover {
+      background: var(--bg-2);
+    }
+
+    .constituency-table tbody td {
+      padding: 10px 16px;
+      vertical-align: middle;
+    }
+
+    .constituency-num {
+      font-family: var(--mono);
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-3);
+      text-align: center;
+    }
+
+    .constituency-name {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-1);
+      margin-bottom: 2px;
+    }
+
+    .constituency-name small {
+      display: block;
+      font-family: var(--mono);
+      font-size: 11px;
+      font-weight: 400;
+      color: var(--text-3);
+      letter-spacing: 0.05em;
+    }
+
+    .constituency-party {
+      display: inline-block;
+      font-family: var(--mono);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      padding: 3px 9px;
+      border-radius: 4px;
+      background: color-mix(in srgb, var(--clr) 10%, var(--bg-2));
+      color: var(--clr);
+      border-left: 3px solid var(--clr);
+    }
+
+    .constituency-cand {
+      font-size: 13px;
+      color: var(--text-2);
+      display: block;
+      margin-top: 4px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 160px;
+    }
+
+    .constituency-status {
+      font-family: var(--mono);
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      white-space: nowrap;
+    }
+
+    .constituency-status.won {
+      color: var(--green);
+    }
+
+    .constituency-status.counting {
+      color: var(--gold);
+    }
+
+    .constituency-margin {
+      text-align: right;
+      font-family: var(--mono);
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-1);
+      white-space: nowrap;
+      font-feature-settings: "tnum";
+      letter-spacing: -0.01em;
+    }
+
+    .constituency-margin small {
+      display: block;
+      font-size: 9px;
+      font-weight: 400;
+      color: var(--text-3);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-top: 1px;
+    }
+
+    .constituency-pagination {
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      border-top: 1px solid var(--border);
+      background: var(--bg-2);
+    }
+
+    .constituency-page-btn {
+      padding: 6px 10px;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      background: var(--bg-1);
+      color: var(--text-2);
+      font-family: var(--mono);
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all .12s;
+      min-width: 32px;
+    }
+
+    .constituency-page-btn:hover:not(:disabled) {
+      background: var(--accent);
+      color: white;
+      border-color: var(--accent);
+    }
+
+    .constituency-page-btn.active {
+      background: var(--accent);
+      color: white;
+      border-color: var(--accent);
+    }
+
+    .constituency-page-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .constituency-page-info {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--text-3);
+      letter-spacing: 0.08em;
+      margin-left: 16px;
+    }
+
+    /* ── FOOTER ── */
+    .dash-footer {
+      border-top: 1px solid var(--border);
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      color: var(--text-3);
+      background: var(--bg-1);
+    }
+
+    .dash-footer a {
+      color: var(--text-3);
+      text-decoration: none;
+      border-bottom: 1px solid var(--border-2);
+    }
+
+    .dash-footer a:hover {
+      color: var(--accent);
+    }
+
+    /* ── UPDATE FLASH ── */
+    @keyframes flash {
+      0% {
+        background: rgba(37, 99, 235, .1)
+      }
+
+      100% {
+        background: transparent
+      }
+    }
+
+    .flash {
+      animation: flash 1.2s ease-out;
+    }
+
+    /* ── STATUS TAGS ── */
+    .tag-stale {
+      color: var(--gold) !important;
+    }
+
+    .tag-error {
+      color: var(--red) !important;
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 1280px) {
+      .kpi-row {
+        grid-template-columns: repeat(3, 1fr);
+      }
+
+      .two-col {
+        grid-template-columns: 1fr;
+      }
+
+      .donut-card {
+        flex-direction: row;
+        align-items: flex-start;
+        gap: 24px;
+      }
+
+      .donut-wrap {
+        flex-shrink: 0;
+      }
+    }
+
+    @media (max-width: 960px) {
+      .bottom-row {
+        grid-template-columns: 1fr;
+      }
+
+      .app {
+        padding: 14px 14px 36px;
+      }
+
+      .topbar {
+        padding: 0 14px;
+      }
+
+      .topbar-sub {
+        display: none;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .kpi-row {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+      }
+
+      .kpi-value {
+        font-size: 32px;
+      }
+
+      .kpi-value.small-text {
+        font-size: 18px;
+      }
+
+      .kpi {
+        padding: 12px 14px;
+      }
+
+      .kpi-label {
+        font-size: 9px;
+        margin-bottom: 6px;
+      }
+
+      .kpi-sub {
+        font-size: 10px;
+      }
+
+      .topbar-meta {
+        gap: 10px;
+      }
+
+      #eci-timestamp {
+        display: none;
+      }
+
+      .knife-filter-bar {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+      }
+
+      .knife-filter-select {
+        width: 100%;
+      }
+
+      .constituency-search-wrap {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      #constituencyStatusFilter {
+        width: 100% !important;
+        max-width: none !important;
+      }
+
+      .topbar {
+        gap: 10px;
+      }
+
+      .topbar-title {
+        font-size: 12px;
+      }
+
+      .hide-mobile {
+        display: none !important;
+      }
+
+      .refresh-btn {
+        padding: 6px 8px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ── TOPBAR ── -->
+  <header class="topbar">
+    <div class="topbar-title">TN Assembly 2026</div>
+    <div class="topbar-sub">தமிழ்நாடு சட்டப்பேரவைத் தேர்தல்</div>
+    <div class="topbar-sep"></div>
+    <div class="topbar-meta">
+      <span class="live-chip">LIVE</span>
+      <span class="hide-mobile">ECI · results.eci.gov.in</span>
+      <span id="updatedTag" class="hide-mobile">Updated <span id="updatedAgo"
+          style="color:var(--text-2);font-weight:600">—</span></span>
+      <span id="eci-timestamp"></span>
+      <button class="refresh-btn" id="refreshBtn" type="button" title="Refresh">
+        <span class="spin"></span><span class="hide-mobile">Refresh</span>
+      </button>
+    </div>
+  </header>
+
+  <div class="app">
+
+    <!-- ── KPI ROW ── -->
+    <div class="kpi-row">
+      <div class="kpi" style="--kpi-accent:var(--text-1)">
+        <div class="kpi-label">Leading Party</div>
+        <div class="kpi-value small-text" id="kpi-leader">—</div>
+        <div class="kpi-sub" id="kpi-leader-sub">—</div>
+      </div>
+      <div class="kpi" style="--kpi-accent:#D97706">
+        <div class="kpi-label">Seats to Majority</div>
+        <div class="kpi-value" id="kpi-short" style="--kpi-color:var(--gold)">—</div>
+        <div class="kpi-sub">of 118 needed</div>
+      </div>
+      <div class="kpi" style="--kpi-accent:var(--border-2)">
+        <div class="kpi-label">Total Seats</div>
+        <div class="kpi-value" id="kpi-total">234</div>
+        <div class="kpi-sub">Tamil Nadu Assembly</div>
+      </div>
+      <div class="kpi" style="--kpi-accent:var(--accent)">
+        <div class="kpi-label">Results Declared</div>
+        <div class="kpi-value" id="kpi-declared" style="--kpi-color:var(--accent)">—</div>
+        <div class="kpi-sub" id="kpi-declared-sub">constituencies</div>
+      </div>
+      <div class="kpi" style="--kpi-accent:var(--green)">
+        <div class="kpi-label">Counting Round</div>
+        <div class="kpi-value" id="kpi-round" style="--kpi-color:var(--green)">—</div>
+        <div class="kpi-sub" id="kpi-round-sub">latest round</div>
+      </div>
+      <div class="kpi" style="--kpi-accent:var(--border-2)">
+        <div class="kpi-label">Parties on Board</div>
+        <div class="kpi-value" id="kpi-parties">—</div>
+        <div class="kpi-sub">with seats</div>
+      </div>
+    </div>
+
+    <!-- ── SEAT BAR ── -->
+    <div class="seat-bar-card">
+      <div class="card-header">
+        <span class="card-title">Seat Distribution · 234 Constituencies</span>
+        <span class="card-badge" id="seat-bar-badge"></span>
+      </div>
+      <div class="seat-bar-outer" id="seatBar">
+        <div class="majority-needle" id="majNeedle" style="left:50.43%"></div>
+      </div>
+      <div class="seat-bar-legend" id="seatBarLegend"></div>
+    </div>
+
+    <!-- ── PARTY TABLE + DONUT ── -->
+    <div class="two-col">
+      <div class="party-card">
+        <div style="overflow-x:auto; -webkit-overflow-scrolling: touch;">
+          <table class="party-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Party</th>
+                <th>Full Name</th>
+                <th style="min-width:160px;">Won <span style="color:var(--border-2);font-weight:400">/ Leading</span>
+                </th>
+                <th class="r">Won</th>
+                <th class="r">Leading</th>
+                <th class="r">Total</th>
+                <th class="r">%</th>
+              </tr>
+            </thead>
+            <tbody id="partyTbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ── ALLIANCE TALLY CARD ── -->
+      <div class="donut-card" id="allianceCard">
+        <div class="card-header">
+          <span class="card-title">Alliance Tally</span>
+          <span class="card-badge" id="allianceBadge"></span>
+        </div>
+        <div id="allianceList" style="display:flex; flex-direction:column; gap:14px;"></div>
+        <div style="margin-top:4px; padding-top:14px; border-top:1px solid var(--border);">
+          <div style="font-family:var(--mono); font-size:10px; letter-spacing:0.16em; text-transform:uppercase; color:var(--text-3); margin-bottom:6px;">Majority line · 118 seats</div>
+          <div style="height:6px; background:var(--bg-3); border-radius:3px; position:relative; overflow:visible;">
+            <div id="allianceMajNeedle" style="position:absolute; top:-4px; bottom:-4px; width:2px; background:var(--gold); left:50.43%; z-index:2;"></div>
+            <div id="allianceProgressBar" style="height:100%; border-radius:3px; background:var(--accent); width:0; transition:width 1s cubic-bezier(.2,.8,.2,1);"></div>
+          </div>
+          <div id="allianceMajText" style="font-family:var(--mono); font-size:11px; color:var(--text-3); margin-top:5px; letter-spacing:0.04em;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── BOTTOM ROW ── -->
+    <div class="bottom-row">
+      <div class="knife-card">
+        <div class="card-header" style="padding:16px 20px 0 20px">
+          <span class="card-title">Closest Races</span>
+          <span class="card-badge" id="knifeBadge"></span>
+        </div>
+        <div class="constituency-search-wrap" style="display:flex; gap:12px; flex-wrap:wrap;">
+          <select class="constituency-search" id="knifeLeadFilter" style="width:auto; min-width:130px; cursor:pointer; flex:1;">
+            <option value="">All Leading…</option>
+          </select>
+          <select class="constituency-search" id="knifeTrailFilter" style="width:auto; min-width:130px; cursor:pointer; flex:1;">
+            <option value="">All Trailing…</option>
+          </select>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span style="font-family:var(--mono); font-size:12px; color:var(--text-3); white-space:nowrap;">Max margin</span>
+            <input class="constituency-search" id="knifeMarginInput" type="number" min="0" value="1000"
+              style="width:90px; text-align:right; -moz-appearance:textfield; font-family:var(--mono); font-weight:600;" />
+          </div>
+          <span class="knife-count" id="knifeCount"></span>
+        </div>
+        <div style="overflow-x:auto">
+          <table class="knife-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Constituency</th>
+                <th>Leading</th>
+                <th>Trailing</th>
+                <th>Rnd</th>
+                <th>Status</th>
+                <th class="r" id="knifeMarginHeader" style="cursor:pointer; user-select:none;"
+                  title="Click to sort by margin">Margin <span id="knifeSortArrow" style="font-size:10px">▲</span></th>
+              </tr>
+            </thead>
+            <tbody id="knifeTbody"></tbody>
+          </table>
+        </div>
+        <div class="knife-pagination" id="knifePagination"></div>
+      </div>
+
+      <div class="constituency-card">
+        <div class="card-header" style="padding:16px 20px 0 20px">
+          <span class="card-title">Constituency-wise Results</span>
+          <span class="card-badge" id="constituencyBadge">Tamil Nadu · 234 constituencies</span>
+        </div>
+        <div class="constituency-search-wrap" style="display:flex; gap:12px; flex-wrap:wrap;">
+          <input class="constituency-search" id="constituencySearch" type="text" placeholder="Search constituency…"
+            autocomplete="off" style="flex:1; min-width:180px" />
+          <select class="constituency-search" id="constituencyPartyFilter"
+            style="width:auto; min-width:120px; cursor:pointer;">
+            <option value="">All Parties</option>
+          </select>
+          <select class="constituency-search" id="constituencyStatusFilter"
+            style="width:auto; min-width:130px; cursor:pointer;">
+            <option value="">All Statuses</option>
+            <option value="won">Won</option>
+            <option value="counting">Counting</option>
+          </select>
+        </div>
+        <div style="overflow-x:auto; -webkit-overflow-scrolling: touch;">
+          <table class="constituency-table">
+            <thead>
+              <tr>
+                <th style="width:36px">#</th>
+                <th>Constituency</th>
+                <th>Leading Party</th>
+                <th>Leading Candidate</th>
+                <th>Status</th>
+                <th class="r" id="constituencyMarginHeader" style="cursor:pointer; user-select:none;"
+                  title="Click to sort by margin">Margin <span id="constituencySortArrow"
+                    style="font-size:10px; color:var(--border-2)">—</span></th>
+              </tr>
+            </thead>
+            <tbody id="constituencyTbody"></tbody>
+          </table>
+        </div>
+        <div class="constituency-pagination" id="constituencyPagination"></div>
+      </div>
+    </div>
+
+    <!-- ── DISTRICT STATS ── -->
+    <div class="district-card">
+      <div class="card-header" style="padding:16px 20px 0 20px">
+        <span class="card-title">District-wise Results</span>
+        <span class="card-badge" id="districtBadge">Tamil Nadu · 36 districts</span>
+      </div>
+      <div class="district-search-wrap">
+        <input class="district-search" id="districtSearch" type="text" placeholder="Search district…"
+          autocomplete="off" />
+      </div>
+      <div style="overflow-x:auto; -webkit-overflow-scrolling: touch;">
+        <table class="district-table">
+          <thead>
+            <tr>
+              <th style="width:36px"></th>
+              <th>District</th>
+              <th>Leading Party</th>
+              <th>Breakdown</th>
+              <th class="r">Counted</th>
+            </tr>
+          </thead>
+          <tbody id="districtTbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+
+  <footer class="dash-footer">
+    <span>Source: <a href="https://results.eci.gov.in/ResultAcGenMay2026/partywiseresult-S22.htm" target="_blank"
+        rel="noreferrer">results.eci.gov.in</a></span>
+    <span></span>
+    <span>Auto-refresh every <strong style="color:var(--text-2)">45s</strong></span>
+  </footer>
+
+  <script>
+    // Direct AC number → district lookup (verified against actual ECI constituency list)
+    const AC_DISTRICT = {
+      // Thiruvallur (9)
+      1: 'Thiruvallur', 2: 'Thiruvallur', 3: 'Thiruvallur', 4: 'Thiruvallur', 5: 'Thiruvallur',
+      6: 'Thiruvallur', 7: 'Thiruvallur', 8: 'Thiruvallur', 9: 'Thiruvallur',
+      // Chennai (18)
+      10: 'Chennai', 11: 'Chennai', 12: 'Chennai', 13: 'Chennai', 14: 'Chennai', 15: 'Chennai',
+      16: 'Chennai', 17: 'Chennai', 18: 'Chennai', 19: 'Chennai', 20: 'Chennai', 21: 'Chennai',
+      22: 'Chennai', 23: 'Chennai', 24: 'Chennai', 25: 'Chennai', 26: 'Chennai', 27: 'Chennai',
+      // Chengalpattu (7) + Kancheepuram (3)
+      28: 'Chengalpattu', 29: 'Kancheepuram', 30: 'Chengalpattu', 31: 'Chengalpattu',
+      32: 'Chengalpattu', 33: 'Chengalpattu', 34: 'Chengalpattu', 35: 'Chengalpattu',
+      36: 'Kancheepuram', 37: 'Kancheepuram',
+      // Vellore (7) + Ranipet (2)
+      38: 'Vellore', 39: 'Vellore', 40: 'Vellore', 41: 'Ranipet', 42: 'Ranipet',
+      43: 'Vellore', 44: 'Vellore', 45: 'Vellore', 46: 'Vellore',
+      // Tirupattur (4)
+      47: 'Tirupattur', 48: 'Tirupattur', 49: 'Tirupattur', 50: 'Tirupattur',
+      // Krishnagiri (6)
+      51: 'Krishnagiri', 52: 'Krishnagiri', 53: 'Krishnagiri', 54: 'Krishnagiri', 55: 'Krishnagiri', 56: 'Krishnagiri',
+      // Dharmapuri (5)
+      57: 'Dharmapuri', 58: 'Dharmapuri', 59: 'Dharmapuri', 60: 'Dharmapuri', 61: 'Dharmapuri',
+      // Tiruvannamalai (8)
+      62: 'Tiruvannamalai', 63: 'Tiruvannamalai', 64: 'Tiruvannamalai', 65: 'Tiruvannamalai',
+      66: 'Tiruvannamalai', 67: 'Tiruvannamalai', 68: 'Tiruvannamalai', 69: 'Tiruvannamalai',
+      // Villupuram (6)
+      70: 'Villupuram', 71: 'Villupuram', 72: 'Villupuram', 73: 'Villupuram', 74: 'Villupuram', 75: 'Villupuram',
+      // Kallakurichi (5)
+      76: 'Kallakurichi', 77: 'Kallakurichi', 78: 'Kallakurichi', 79: 'Kallakurichi', 80: 'Kallakurichi',
+      // Salem (10)
+      81: 'Salem', 82: 'Salem', 83: 'Salem', 84: 'Salem', 85: 'Salem',
+      86: 'Salem', 87: 'Salem', 88: 'Salem', 89: 'Salem', 90: 'Salem',
+      // Namakkal (6)
+      91: 'Namakkal', 92: 'Namakkal', 93: 'Namakkal', 94: 'Namakkal', 95: 'Namakkal', 96: 'Namakkal',
+      // Erode (9) — interleaved with Tiruppur
+      97: 'Erode', 98: 'Erode', 99: 'Erode', 100: 'Erode',
+      101: 'Tiruppur', 102: 'Tiruppur',  // Dharapuram, Kangayam → Tiruppur
+      103: 'Erode', 104: 'Erode', 105: 'Erode', 106: 'Erode', 107: 'Erode',
+      // Nilgiris (3)
+      108: 'Nilgiris', 109: 'Nilgiris', 110: 'Nilgiris',
+      // Coimbatore (10) + Tiruppur continued — interleaved
+      111: 'Coimbatore',                            // Mettuppalayam
+      112: 'Tiruppur', 113: 'Tiruppur', 114: 'Tiruppur', 115: 'Tiruppur', // Avanashi, TUP N/S, Palladam
+      116: 'Coimbatore', 117: 'Coimbatore', 118: 'Coimbatore', 119: 'Coimbatore', 120: 'Coimbatore',
+      121: 'Coimbatore', 122: 'Coimbatore', 123: 'Coimbatore', 124: 'Coimbatore',
+      125: 'Tiruppur', 126: 'Tiruppur',               // Udumalaipettai, Madathukulam
+      // Dindigul (7)
+      127: 'Dindigul', 128: 'Dindigul', 129: 'Dindigul', 130: 'Dindigul', 131: 'Dindigul', 132: 'Dindigul', 133: 'Dindigul',
+      // Karur (4)
+      134: 'Karur', 135: 'Karur', 136: 'Karur', 137: 'Karur',
+      // Tiruchirappalli (9)
+      138: 'Tiruchirappalli', 139: 'Tiruchirappalli', 140: 'Tiruchirappalli', 141: 'Tiruchirappalli',
+      142: 'Tiruchirappalli', 143: 'Tiruchirappalli', 144: 'Tiruchirappalli', 145: 'Tiruchirappalli', 146: 'Tiruchirappalli',
+      // Perambalur (2)
+      147: 'Perambalur', 148: 'Perambalur',
+      // Ariyalur (2)
+      149: 'Ariyalur', 150: 'Ariyalur',
+      // Cuddalore (9)
+      151: 'Cuddalore', 152: 'Cuddalore', 153: 'Cuddalore', 154: 'Cuddalore', 155: 'Cuddalore',
+      156: 'Cuddalore', 157: 'Cuddalore', 158: 'Cuddalore', 159: 'Cuddalore',
+      // Mayiladuthurai (3)
+      160: 'Mayiladuthurai', 161: 'Mayiladuthurai', 162: 'Mayiladuthurai',
+      // Nagapattinam (3)
+      163: 'Nagapattinam', 164: 'Nagapattinam', 165: 'Nagapattinam',
+      // Tiruvarur (4)
+      166: 'Tiruvarur', 167: 'Tiruvarur', 168: 'Tiruvarur', 169: 'Tiruvarur',
+      // Thanjavur (8)
+      170: 'Thanjavur', 171: 'Thanjavur', 172: 'Thanjavur', 173: 'Thanjavur',
+      174: 'Thanjavur', 175: 'Thanjavur', 176: 'Thanjavur', 177: 'Thanjavur',
+      // Pudukkottai (6)
+      178: 'Pudukkottai', 179: 'Pudukkottai', 180: 'Pudukkottai',
+      181: 'Pudukkottai', 182: 'Pudukkottai', 183: 'Pudukkottai',
+      // Sivaganga (4)
+      184: 'Sivaganga', 185: 'Sivaganga', 186: 'Sivaganga', 187: 'Sivaganga',
+      // Madurai (10)
+      188: 'Madurai', 189: 'Madurai', 190: 'Madurai', 191: 'Madurai', 192: 'Madurai',
+      193: 'Madurai', 194: 'Madurai', 195: 'Madurai', 196: 'Madurai', 197: 'Madurai',
+      // Theni (4)
+      198: 'Theni', 199: 'Theni', 200: 'Theni', 201: 'Theni',
+      // Virudhunagar (7)
+      202: 'Virudhunagar', 203: 'Virudhunagar', 204: 'Virudhunagar', 205: 'Virudhunagar',
+      206: 'Virudhunagar', 207: 'Virudhunagar', 208: 'Virudhunagar',
+      // Ramanathapuram (4)
+      209: 'Ramanathapuram', 210: 'Ramanathapuram', 211: 'Ramanathapuram', 212: 'Ramanathapuram',
+      // Thoothukudi (6)
+      213: 'Thoothukudi', 214: 'Thoothukudi', 215: 'Thoothukudi',
+      216: 'Thoothukudi', 217: 'Thoothukudi', 218: 'Thoothukudi',
+      // Tenkasi (4)
+      219: 'Tenkasi', 220: 'Tenkasi', 221: 'Tenkasi', 222: 'Tenkasi',
+      // Tirunelveli (6)
+      223: 'Tirunelveli', 224: 'Tirunelveli', 225: 'Tirunelveli',
+      226: 'Tirunelveli', 227: 'Tirunelveli', 228: 'Tirunelveli',
+      // Kanyakumari (6)
+      229: 'Kanyakumari', 230: 'Kanyakumari', 231: 'Kanyakumari',
+      232: 'Kanyakumari', 233: 'Kanyakumari', 234: 'Kanyakumari',
+    };
+    // Pre-compute total seats per district from the lookup
+    const DISTRICT_TOTAL = {};
+    Object.values(AC_DISTRICT).forEach(d => { DISTRICT_TOTAL[d] = (DISTRICT_TOTAL[d] || 0) + 1; });
+    const DISTRICT_ORDER = [
+      'Ariyalur', 'Chengalpattu', 'Chennai', 'Coimbatore', 'Cuddalore', 'Dharmapuri', 'Dindigul',
+      'Erode', 'Kallakurichi', 'Kancheepuram', 'Kanyakumari', 'Karur', 'Krishnagiri', 'Madurai',
+      'Mayiladuthurai', 'Nagapattinam', 'Namakkal', 'Nilgiris', 'Perambalur', 'Pudukkottai',
+      'Ramanathapuram', 'Ranipet', 'Salem', 'Sivaganga', 'Tenkasi', 'Thanjavur', 'Theni',
+      'Thoothukudi', 'Tiruchirappalli', 'Tirunelveli', 'Tirupathur', 'Tiruppur', 'Thiruvallur',
+      'Tiruvannamalai', 'Tiruvarur', 'Vellore', 'Villupuram', 'Virudhunagar'
+    ];
+
+    const openPartyRows = new Set();
+
+    const PARTY_META = {
+      'TVK': { color: '#C026D3', long: 'Tamilaga Vettri Kazhagam' },
+      'ADMK': { color: '#16A34A', long: 'AIADMK' },
+      'AIADMK': { color: '#16A34A', long: 'AIADMK' },  // ECI feed code alias
+      'DMK': { color: '#E11D48', long: 'Dravida Munnetra Kazhagam' },
+      'PMK': { color: '#FACC15', long: 'Pattali Makkal Katchi' },
+      'INC': { color: '#2563EB', long: 'Indian National Congress' },
+      'BJP': { color: '#F97316', long: 'Bharatiya Janata Party' },
+      'DMDK': { color: '#A16207', long: 'Desiya Murpokku Dravida Kazhagam' },
+      'VCK': { color: '#3D6B00', long: 'Viduthalai Chiruthaigal Katchi' },
+      'CPI': { color: '#B91C1C', long: 'Communist Party of India' },
+      'IUML': { color: '#15803D', long: 'Indian Union Muslim League' },
+      'AMMKMNKZ': { color: '#7C3AED', long: 'Amma Makkal Munnettra Kazagam' },
+      'CPI(M)': { color: '#991B1B', long: 'CPI (Marxist)' },
+      'NTK': { color: '#1E40AF', long: 'Naam Tamilar Katchi' },
+      'IND': { color: '#475569', long: 'Independent' },
+      'Other': { color: '#64748B', long: 'Other' },
+    };
+
+    const NAME_TO_CODE = {
+      'Tamilaga Vettri Kazhagam': 'TVK',
+      'All India Anna Dravida Munnetra Kazhagam': 'ADMK',
+      'Dravida Munnetra Kazhagam': 'DMK',
+      'Pattali Makkal Katchi': 'PMK',
+      'Indian National Congress': 'INC',
+      'Bharatiya Janata Party': 'BJP',
+      'Desiya Murpokku Dravida Kazhagam': 'DMDK',
+      'Viduthalai Chiruthaigal Katchi': 'VCK',
+      'Communist Party of India': 'CPI',
+      'Indian Union Muslim League': 'IUML',
+      'Amma Makkal Munnettra Kazagam': 'AMMKMNKZ',
+      'Communist Party of India  (Marxist)': 'CPI(M)',
+      'Communist Party of India (Marxist)': 'CPI(M)',
+      'Naam Tamilar Katchi': 'NTK',
+      'Independent': 'IND',
+    };
+
+    const meta = c => PARTY_META[c] || { color: '#64748B', long: c };
+    const codeOf = n => NAME_TO_CODE[n] || n;
+
+    const CODE_ALIAS = { 'AIADMK': 'ADMK' };
+    const normalizeCode = c => CODE_ALIAS[c] || c;
+
+    const POLL_MS = 45000;
+    let pollTimer = null;
+    let isLoading = false;
+    let prevParties = null;
+    let allConstituencies = [];
+
+    async function refresh(force = false) {
+      if (isLoading) return;
+      isLoading = true;
+      const btn = document.getElementById('refreshBtn');
+      btn.classList.add('loading'); btn.disabled = true;
+      setStatus('fetching…', '');
+      try {
+        const r = await fetch(force ? '/api/refresh' : '/api/data', { cache: 'no-store' });
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        render(await r.json());
+        setStatus('just now', '');
+      } catch (e) {
+        console.error(e);
+        setStatus('error', 'tag-error');
+      } finally {
+        isLoading = false;
+        btn.classList.remove('loading'); btn.disabled = false;
+        if (pollTimer) clearTimeout(pollTimer);
+        pollTimer = setTimeout(() => refresh(false), POLL_MS);
+      }
+    }
+
+    let lastFetchAt = null;
+    function setStatus(text, cls) {
+      const el = document.getElementById('updatedAgo');
+      el.textContent = text;
+      el.className = cls || '';
+      if (!cls) lastFetchAt = Date.now();
+    }
+    setInterval(() => {
+      if (!lastFetchAt) return;
+      const sec = Math.floor((Date.now() - lastFetchAt) / 1000);
+      if (sec < 5) return;
+      const el = document.getElementById('updatedAgo');
+      if (el.classList.contains('tag-error')) return;
+      el.textContent = sec < 60 ? sec + 's ago' : Math.floor(sec / 60) + 'm ago';
+      el.classList.toggle('tag-stale', sec > POLL_MS / 1000 + 10);
+    }, 1000);
+
+    document.getElementById('refreshBtn').addEventListener('click', () => refresh(true));
+
+    function esc(s) {
+      return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    }
+
+    function render(data) {
+      const totalSeats = data.totalSeats || 234;
+      const majority = data.majority || 118;
+
+      const parties = (data.parties || [])
+        .map(p => {
+          const code = normalizeCode(p.code || codeOf(p.name));
+          return { ...p, code, color: meta(code).color };
+        })
+        .filter(p => p.total > 0)
+        .reduce((acc, p) => {
+          const ex = acc.find(x => x.code === p.code);
+          if (ex) { ex.won += p.won; ex.leading += p.leading; ex.total += p.total; }
+          else acc.push({ ...p });
+          return acc;
+        }, [])
+        .sort((a, b) => b.total - a.total);
+
+      // debug: output party aggregates to console for troubleshooting
+      try { console.debug('PARTIES_AGG', JSON.parse(JSON.stringify(parties))); } catch (e) { }
+
+      const top = parties[0];
+      const short = top ? Math.max(0, majority - top.total) : majority;
+
+      if (data.lastUpdatedECI) {
+        document.getElementById('eci-timestamp').textContent = 'ECI: ' + data.lastUpdatedECI;
+      }
+
+      // ── KPI ──
+      if (top) {
+        const kl = document.getElementById('kpi-leader');
+        const longName = meta(top.code).long;
+        kl.textContent = longName;
+        kl.style.setProperty('--kpi-color', top.color);
+        document.getElementById('kpi-leader-sub').textContent = top.total + ' seats · ' + top.code;
+        document.getElementById('kpi-leader-sub').style.color = top.color;
+      }
+      const ks = document.getElementById('kpi-short');
+      if (short === 0) {
+        ks.textContent = '✓';
+        ks.style.setProperty('--kpi-color', 'var(--green)');
+      } else {
+        ks.textContent = short;
+        ks.style.setProperty('--kpi-color', 'var(--gold)');
+      }
+
+      const declared = (data.constituencies || []).filter(c => c.status && (c.status.toLowerCase().includes('declared') || c.status.toLowerCase() === 'won')).length;
+      document.getElementById('kpi-declared').textContent = declared || '—';
+      document.getElementById('kpi-declared-sub').textContent = declared ? `of ${totalSeats} constituencies` : 'counting in progress';
+      document.getElementById('kpi-total').textContent = totalSeats;
+      document.getElementById('kpi-parties').textContent = parties.length;
+
+      const rounds = (data.constituencies || []).map(c => {
+        const m = /(\d+)\/(\d+)/.exec(c.round || '');
+        return m ? [parseInt(m[1]), parseInt(m[2])] : null;
+      }).filter(Boolean);
+      if (rounds.length) {
+        const maxCur = Math.max(...rounds.map(r => r[0]));
+        const maxTotal = Math.max(...rounds.map(r => r[1]));
+        document.getElementById('kpi-round').textContent = maxCur;
+        document.getElementById('kpi-round-sub').textContent = `of ${maxTotal} total rounds`;
+      }
+
+      // ── SEAT BAR ──
+      const seatBar = document.getElementById('seatBar');
+      const needle = document.getElementById('majNeedle');
+      needle.style.left = `calc(${(majority / totalSeats) * 100}% - 1px)`;
+      Array.from(seatBar.children).forEach(c => { if (!c.classList.contains('majority-needle')) seatBar.removeChild(c); });
+      seatBar.appendChild(needle);
+
+      parties.forEach(p => {
+        const seg = document.createElement('div');
+        seg.className = 'seat-bar-seg';
+        seg.style.background = p.color;
+        seg.style.width = '0';
+        seg.title = `${p.code}: ${p.total} seats`;
+        seatBar.appendChild(seg);
+        requestAnimationFrame(() => {
+          seg.style.transition = 'width 1s cubic-bezier(.2,.8,.2,1)';
+          seg.style.width = ((p.total / totalSeats) * 100) + '%';
+        });
+      });
+
+      document.getElementById('seat-bar-badge').textContent = top ? `${meta(top.code).long} leads with ${top.total} seats` : '';
+
+      const legend = document.getElementById('seatBarLegend');
+      legend.innerHTML = parties.map(p =>
+        `<span><i style="background:${p.color}"></i>${esc(p.code)}<span class="ct">${p.total}</span></span>`
+      ).join('');
+
+      // ── PARTY TABLE ──
+      const tbody = document.getElementById('partyTbody');
+      tbody.innerHTML = '';
+      parties.forEach((p, i) => {
+        const pct = ((p.total / totalSeats) * 100).toFixed(1);
+        const wonW = (p.won / totalSeats) * 100;
+        const leadW = (p.leading / totalSeats) * 100;
+        const tr = document.createElement('tr');
+        if (prevParties) {
+          const prev = prevParties.find(x => x.code === p.code);
+          if (prev && prev.total !== p.total) tr.classList.add('flash');
+        }
+        tr.innerHTML = `
+      <td class="pt-rank">${String(i + 1).padStart(2, '0')}</td>
+      <td><div class="pt-chip" style="--clr:${p.color}">${esc(p.code)}</div></td>
+      <td><div class="pt-name">${esc(meta(p.code).long)}</div></td>
+      <td>
+        <div class="pt-splitbar">
+          <div class="pt-splitbar-won"  style="background:${p.color}"          data-w="${wonW}"></div>
+          <div class="pt-splitbar-lead" style="background:${p.color};opacity:.35" data-w="${leadW}"></div>
+        </div>
+        <div class="pt-won-lead">
+          <span style="color:${p.color};font-weight:700">${p.won}</span><span style="color:var(--text-3)"> won</span>
+          <span style="color:var(--border-2);margin:0 4px">+</span>
+          <span style="color:${p.color};font-weight:600;opacity:.7">${p.leading}</span><span style="color:var(--text-3)"> leading</span>
+        </div>
+      </td>
+      <td class="pt-won-num" style="color:${p.color}">${p.won}</td>
+      <td class="pt-lead-num">${p.leading}</td>
+      <td class="pt-total" style="--clr:${p.color}">${p.total}<small>seats</small></td>
+      <td class="pt-pct">${pct}%</td>
+    `;
+        tbody.appendChild(tr);
+
+        // per-party detail panel state
+        if (!window._ptDetailState) window._ptDetailState = {};
+        if (!window._ptDetailState[p.code]) window._ptDetailState[p.code] = { search: '', status: '', sortDesc: false };
+
+        function buildDetailRow() {
+          const dtr = document.createElement('tr');
+          dtr.className = 'pt-detail-row';
+          const allForParty = (data.constituencies || []).filter(c => normalizeCode(codeOf(c.leadParty)) === p.code);
+
+          function getFiltered() {
+            const st = window._ptDetailState[p.code];
+            return allForParty.filter(c => {
+              const q = st.search.toLowerCase();
+              if (q && !(c.name||'').toLowerCase().includes(q) && !(c.leadCand||'').toLowerCase().includes(q)) return false;
+              if (st.status) {
+                const isWon = (c.status||'').toLowerCase().includes('declared') || (c.status||'').toLowerCase() === 'won';
+                if (st.status === 'won' && !isWon) return false;
+                if (st.status === 'counting' && isWon) return false;
+              }
+              return true;
+            }).sort((a, b) => window._ptDetailState[p.code].sortDesc ? b.margin - a.margin : a.margin - b.margin);
+          }
+
+          // Only update tbody + arrow + footer — never recreates the input
+          function refreshTable(td) {
+            const st = window._ptDetailState[p.code];
+            const list = getFiltered();
+            const arrow = st.sortDesc ? '\u25bc' : '\u25b2';
+            const tbody = td.querySelector('tbody');
+            if (tbody) tbody.innerHTML = list.map(c => {
+              const isWon = (c.status||'').toLowerCase().includes('declared') || (c.status||'').toLowerCase() === 'won';
+              return `<tr style="border-bottom:1px solid var(--border);">
+                <td style="padding:5px 10px; font-family:var(--mono); font-size:11px; color:var(--text-3); white-space:nowrap;">${c.no}</td>
+                <td style="padding:5px 10px;">
+                  <div style="font-size:12px; font-weight:600; color:var(--text-1); white-space:nowrap;">${esc(c.name)}</div>
+                  ${c.leadCand ? `<div style="font-size:11px; color:var(--text-3); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:180px;">${esc(c.leadCand)}</div>` : ''}
+                </td>
+                <td style="padding:5px 10px;"><span class="constituency-status ${isWon ? 'won' : 'counting'}" style="font-size:9px; padding:2px 5px;">${isWon ? 'Won' : 'Lead'}</span></td>
+                <td style="padding:5px 10px; text-align:right; font-family:var(--mono); font-size:13px; font-weight:700; color:var(--text-1); white-space:nowrap;">${c.margin.toLocaleString('en-IN')}</td>
+              </tr>`;
+            }).join('') || `<tr><td colspan="4" style="padding:14px; text-align:center; color:var(--text-3); font-family:var(--mono); font-size:11px;">No matching results</td></tr>`;
+            const sortTh = td.querySelector('#pt-m-' + p.code);
+            if (sortTh) sortTh.textContent = 'Margin ' + arrow;
+            const footer = td.querySelector('#pt-footer-' + p.code);
+            if (footer) footer.textContent = `${list.length} of ${allForParty.length} \u00b7 Margin = vote difference between 1st & 2nd place`;
+          }
+
+          // Build toolbar + table skeleton once — events wired permanently, no input destruction
+          function buildStaticShell(td) {
+            const st = window._ptDetailState[p.code];
+            td.innerHTML = `
+              <div style="display:flex; gap:8px; flex-wrap:wrap; padding:10px 12px; border-bottom:1px solid var(--border); background:var(--bg-1);">
+                <input class="constituency-search" id="pt-s-${p.code}" type="text"
+                  placeholder="Search constituency or candidate\u2026" value="${esc(st.search)}"
+                  style="flex:1; min-width:160px; font-size:12px; padding:6px 10px;" autocomplete="off" />
+                <select class="constituency-search" id="pt-f-${p.code}" style="width:auto; min-width:110px; cursor:pointer; font-size:12px; padding:6px 10px;">
+                  <option value="" ${!st.status?'selected':''}>All Statuses</option>
+                  <option value="won" ${st.status==='won'?'selected':''}>Won</option>
+                  <option value="counting" ${st.status==='counting'?'selected':''}>Counting</option>
+                </select>
+              </div>
+              <div style="overflow-x:auto; max-height:240px; overflow-y:auto;">
+                <table style="width:100%; border-collapse:collapse;">
+                  <thead><tr style="background:var(--bg-3);">
+                    <th style="padding:6px 10px; font-family:var(--mono); font-size:9px; letter-spacing:0.15em; text-transform:uppercase; color:var(--text-3); text-align:left;">#</th>
+                    <th style="padding:6px 10px; font-family:var(--mono); font-size:9px; letter-spacing:0.15em; text-transform:uppercase; color:var(--text-3); text-align:left;">Constituency / Candidate</th>
+                    <th style="padding:6px 10px; font-family:var(--mono); font-size:9px; letter-spacing:0.15em; text-transform:uppercase; color:var(--text-3); text-align:left;">Status</th>
+                    <th id="pt-m-${p.code}" style="padding:6px 10px; font-family:var(--mono); font-size:9px; letter-spacing:0.15em; text-transform:uppercase; color:var(--text-2); text-align:right; cursor:pointer; user-select:none; white-space:nowrap;">Margin \u25b2</th>
+                  </tr></thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+              <div id="pt-footer-${p.code}" style="padding:5px 12px; font-family:var(--mono); font-size:10px; color:var(--text-3); border-top:1px solid var(--border); background:var(--bg-1);"></div>`;
+
+            td.querySelector('#pt-s-' + p.code).addEventListener('input', e => {
+              window._ptDetailState[p.code].search = e.target.value;
+              refreshTable(td);
+            });
+            td.querySelector('#pt-f-' + p.code).addEventListener('change', e => {
+              window._ptDetailState[p.code].status = e.target.value;
+              refreshTable(td);
+            });
+            td.querySelector('#pt-m-' + p.code).addEventListener('click', () => {
+              window._ptDetailState[p.code].sortDesc = !window._ptDetailState[p.code].sortDesc;
+              refreshTable(td);
+            });
+            refreshTable(td);
+          }
+
+          const td = document.createElement('td');
+          td.colSpan = 8;
+          td.style.cssText = 'padding:0; background:var(--bg-2); border-bottom:1px solid var(--border); box-shadow:inset 0 2px 4px rgba(0,0,0,.02);';
+          buildStaticShell(td);
+          dtr.appendChild(td);
+          return dtr;
+        }
+
+        tr.style.cursor = 'pointer';
+        tr.title = 'Click to view constituencies';
+        tr.addEventListener('click', () => {
+          if (openPartyRows.has(p.code)) {
+            openPartyRows.delete(p.code);
+            const next = tr.nextElementSibling;
+            if (next && next.classList.contains('pt-detail-row')) next.remove();
+            tr.style.backgroundColor = '';
+          } else {
+            openPartyRows.add(p.code);
+            tr.after(buildDetailRow());
+            tr.style.backgroundColor = 'var(--bg-2)';
+          }
+        });
+
+        if (openPartyRows.has(p.code)) {
+          tr.style.backgroundColor = 'var(--bg-2)';
+          tr.after(buildDetailRow());
+        }
+
+        requestAnimationFrame(() => {
+          const won = tr.querySelector('.pt-splitbar-won');
+          const lead = tr.querySelector('.pt-splitbar-lead');
+          const delay = `${0.1 + i * 0.04}s`;
+          if (won) { won.style.transition = `width 1.2s cubic-bezier(.2,.8,.2,1) ${delay}`; won.style.width = won.dataset.w + '%'; }
+          if (lead) { lead.style.transition = `width 1.2s cubic-bezier(.2,.8,.2,1) ${delay}`; lead.style.width = lead.dataset.w + '%'; }
+        });
+      });
+
+      // ── ALLIANCE TALLY ──
+      renderAllianceTally(parties, totalSeats);
+
+      // ── KNIFE EDGE ──
+      allConstituencies = (data.constituencies || []).slice().sort((a, b) => a.margin - b.margin);
+      populateKnifeFilters(allConstituencies);
+      renderKnifeTable();
+
+      // ── CONSTITUENCY TABLE ──
+      renderConstituencyTable(data);
+
+      // ── DISTRICT STATS ──
+      renderDistricts(data);
+
+      prevParties = parties.map(p => ({ code: p.code, total: p.total }));
+    }
+
+    // \u2500\u2500 ALLIANCE DEFINITIONS (TN 2026) \u2500\u2500
+    const ALLIANCES = [
+      {
+        name: 'DMK Front',
+        color: '#E11D48',
+        parties: ['DMK','INC','VCK','CPI','CPI(M)','IUML','MDMK','MMK'],
+      },
+      {
+        name: 'ADMK Front',
+        color: '#16A34A',
+        parties: ['ADMK','AIADMK','BJP','PMK','DMDK','AMMKMNKZ'],
+      },
+      {
+        name: 'TVK Front',
+        color: '#C026D3',
+        parties: ['TVK'],
+      },
+      {
+        name: 'NTK',
+        color: '#1E40AF',
+        parties: ['NTK'],
+      },
+    ];
+
+    function renderAllianceTally(parties, totalSeats) {
+      const majority = 118;
+      const container = document.getElementById('allianceList');
+      const badge     = document.getElementById('allianceBadge');
+      if (!container) return;
+      container.innerHTML = '';
+
+      // build alliance tallies
+      const tallies = ALLIANCES.map(al => {
+        const matched = parties.filter(p => al.parties.includes(p.code));
+        const won     = matched.reduce((s, p) => s + (p.won     || 0), 0);
+        const leading = matched.reduce((s, p) => s + (p.leading || 0), 0);
+        const total   = matched.reduce((s, p) => s + (p.total   || 0), 0);
+        const members = matched.map(p => p.code);
+        return { ...al, won, leading, total, members };
+      });
+
+      // "Others" bucket
+      const knownCodes = new Set(ALLIANCES.flatMap(a => a.parties));
+      const others = parties.filter(p => !knownCodes.has(p.code));
+      if (others.length) {
+        tallies.push({
+          name: 'Others',
+          color: '#64748B',
+          parties: [],
+          won:     others.reduce((s, p) => s + (p.won     || 0), 0),
+          leading: others.reduce((s, p) => s + (p.leading || 0), 0),
+          total:   others.reduce((s, p) => s + (p.total   || 0), 0),
+          members: others.map(p => p.code),
+        });
+      }
+
+      const topTotal = Math.max(...tallies.map(t => t.total), 1);
+      const grandTotal = tallies.reduce((s, t) => s + t.total, 0);
+
+      tallies.filter(t => t.total > 0).sort((a, b) => b.total - a.total).forEach((al, i) => {
+        const wonPct  = (al.won     / totalSeats) * 100;
+        const leadPct = (al.leading / totalSeats) * 100;
+        const barPct  = (al.total   / topTotal)   * 100;
+        const needsMaj = Math.max(0, majority - al.total);
+        const majorityTag = needsMaj === 0
+          ? `<span style="background:color-mix(in srgb,${al.color} 15%,#fff); color:${al.color}; font-family:var(--mono); font-size:9px; font-weight:700; letter-spacing:0.12em; padding:2px 7px; border-radius:3px; border:1px solid ${al.color}40; margin-left:6px;">MAJORITY</span>`
+          : '';
+
+        const row = document.createElement('div');
+        row.style.cssText = 'display:flex; flex-direction:column; gap:5px;';
+        row.innerHTML = `
+          <div style="display:flex; align-items:center; justify-content:space-between;">
+            <div style="display:flex; align-items:center; gap:8px;">
+              <span style="display:inline-block; width:10px; height:10px; border-radius:2px; background:${al.color}; flex-shrink:0;"></span>
+              <span style="font-size:13px; font-weight:600; color:var(--text-1);">${esc(al.name)}</span>
+              ${majorityTag}
+            </div>
+            <div style="display:flex; align-items:baseline; gap:6px;">
+              <span style="font-family:var(--mono); font-size:22px; font-weight:700; color:${al.color}; letter-spacing:-0.03em;">${al.total}</span>
+              <span style="font-family:var(--mono); font-size:10px; color:var(--text-3);">seats</span>
+            </div>
+          </div>
+          <div style="height:8px; background:var(--bg-3); border-radius:4px; overflow:hidden; display:flex; gap:1px;" title="${al.name}: ${al.won} won + ${al.leading} leading">
+            <div class="al-won-bar"  data-w="${wonPct}"  style="height:100%; width:0; background:${al.color}; border-radius:4px 0 0 4px; transition:width 1s cubic-bezier(.2,.8,.2,1) ${0.1+i*0.08}s;"></div>
+            <div class="al-lead-bar" data-w="${leadPct}" style="height:100%; width:0; background:${al.color}; opacity:.35; transition:width 1s cubic-bezier(.2,.8,.2,1) ${0.1+i*0.08}s;"></div>
+          </div>
+          <div style="font-family:var(--mono); font-size:11px; color:var(--text-3); display:flex; gap:10px;">
+            <span><b style="color:${al.color}">${al.won}</b> won</span>
+            <span><b style="color:${al.color}; opacity:.7">${al.leading}</b> leading</span>
+            ${al.members.length ? `<span style="margin-left:auto; color:var(--border-2); font-size:10px">${al.members.join(' · ')}</span>` : ''}
+          </div>
+        `;
+        container.appendChild(row);
+        requestAnimationFrame(() => {
+          row.querySelector('.al-won-bar').style.width  = wonPct  + '%';
+          row.querySelector('.al-lead-bar').style.width = leadPct + '%';
+        });
+      });
+
+      // majority progress bar — use leading alliance
+      const leading = tallies.sort((a, b) => b.total - a.total)[0];
+      const leadingProg = Math.min(100, (leading?.total || 0) / majority * 100);
+      const majNeedle = document.getElementById('allianceMajNeedle');
+      const majBar    = document.getElementById('allianceProgressBar');
+      const majText   = document.getElementById('allianceMajText');
+      if (majBar) {
+        majBar.style.background = leading?.color || 'var(--accent)';
+        requestAnimationFrame(() => { majBar.style.width = leadingProg + '%'; });
+      }
+      if (majNeedle) majNeedle.style.left = `${(majority / totalSeats) * 100 * (topTotal / majority) * 0.5}%`;
+      if (majText && leading) {
+        const short = Math.max(0, majority - leading.total);
+        majText.textContent = short === 0
+          ? `${leading.name} has crossed the majority mark!`
+          : `${leading.name} needs ${short} more seat${short !== 1 ? 's' : ''} for majority`;
+        majText.style.color = short === 0 ? 'var(--green)' : 'var(--text-3)';
+      }
+
+      if (badge) badge.textContent = `${grandTotal} of ${totalSeats} seats counted`;
+    }
+
+    const KNIFE_PAGE_SIZE = 20;
+    let knifePage = 1;
+
+
+    function populateKnifeFilters(constituencies) {
+      const parties = new Set();
+      constituencies.forEach(c => {
+        if (c.leadParty) parties.add(c.leadParty);
+        if (c.trailParty) parties.add(c.trailParty);
+      });
+
+      const sortedParties = Array.from(parties).sort();
+
+      const leadSelect = document.getElementById('knifeLeadFilter');
+      const trailSelect = document.getElementById('knifeTrailFilter');
+
+      // Clear existing options except the first one
+      leadSelect.innerHTML = '<option value="">Leading party…</option>';
+      trailSelect.innerHTML = '<option value="">Trailing party…</option>';
+
+      sortedParties.forEach(party => {
+        const option1 = document.createElement('option');
+        option1.value = party.toLowerCase();
+        option1.textContent = party;
+        leadSelect.appendChild(option1);
+
+        const option2 = document.createElement('option');
+        option2.value = party.toLowerCase();
+        option2.textContent = party;
+        trailSelect.appendChild(option2);
+      });
+    }
+
+    function getKnifeFiltered() {
+      const leadQ = (document.getElementById('knifeLeadFilter')?.value || '').trim();
+      const trailQ = (document.getElementById('knifeTrailFilter')?.value || '').trim();
+      const maxM = parseInt(document.getElementById('knifeMarginInput')?.value ?? 1000);
+      const limit = isNaN(maxM) ? Infinity : maxM;
+
+      return allConstituencies.filter(c => {
+        if (c.margin > limit) return false;
+        if (leadQ && (c.leadParty || '').toLowerCase() !== leadQ) return false;
+        if (trailQ && (c.trailParty || '').toLowerCase() !== trailQ) return false;
+        return true;
+      });
+    }
+
+    function renderKnifeTable() {
+      const knifeTbody = document.getElementById('knifeTbody');
+      const pagination = document.getElementById('knifePagination');
+      knifeTbody.innerHTML = '';
+
+      if (!allConstituencies.length) {
+        knifeTbody.innerHTML = `<tr><td colspan="7" style="padding:28px;text-align:center;color:var(--text-3);font-family:var(--mono);font-size:13px;letter-spacing:0.12em;">NO CONSTITUENCY DATA YET</td></tr>`;
+        if (pagination) pagination.innerHTML = '';
+        return;
+      }
+
+      const filtered = getKnifeFiltered();
+      filtered.sort((a, b) => knifeMarginDesc ? b.margin - a.margin : a.margin - b.margin);
+
+      const totalPages = Math.max(1, Math.ceil(filtered.length / KNIFE_PAGE_SIZE));
+      if (knifePage > totalPages) knifePage = totalPages;
+      if (knifePage < 1) knifePage = 1;
+
+      const marginArrow = document.getElementById('knifeSortArrow');
+      if (marginArrow) marginArrow.textContent = knifeMarginDesc ? '▼' : '▲';
+
+      document.getElementById('knifeBadge').textContent = `${filtered.length} result${filtered.length !== 1 ? 's' : ''}`;
+      document.getElementById('knifeCount').textContent =
+        filtered.length !== allConstituencies.length
+          ? `(${allConstituencies.length} total)`
+          : '';
+
+      if (!filtered.length) {
+        knifeTbody.innerHTML = `<tr><td colspan="7" style="padding:28px;text-align:center;color:var(--text-3);font-family:var(--mono);font-size:13px;letter-spacing:0.1em;">NO MATCHING RESULTS</td></tr>`;
+        if (pagination) pagination.innerHTML = '';
+        return;
+      }
+
+      const start = (knifePage - 1) * KNIFE_PAGE_SIZE;
+      const page = filtered.slice(start, start + KNIFE_PAGE_SIZE);
+
+      page.forEach((c, i) => {
+        const lc = normalizeCode(codeOf(c.leadParty));
+        const tc = normalizeCode(codeOf(c.trailParty));
+        const lcM = meta(lc), tcM = meta(tc);
+
+        const isWon = (c.status || '').toLowerCase().includes('declared') || (c.status || '').toLowerCase() === 'won';
+        const statusClass = isWon ? 'status-won' : 'status-lead';
+        const statusText = isWon ? 'Won' : 'Counting';
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+      <td class="k-num">${String(start + i + 1).padStart(2, '0')}</td>
+      <td><div class="k-name">${esc(c.name)}<small>AC ${c.no}</small></div></td>
+      <td>
+        <span class="k-party" style="--clr:${lcM.color}">${esc(lc)}</span>
+        <span class="k-cand">${esc(c.leadCand || '—')}</span>
+      </td>
+      <td>
+        <span class="k-party" style="--clr:${tcM.color}">${esc(tc)}</span>
+        <span class="k-cand">${esc(c.trailCand || '—')}</span>
+      </td>
+      <td class="k-round">${esc(c.round || '—')}</td>
+      <td><span class="constituency-status ${statusClass}" style="font-size:9px; padding:2px 4px">${statusText}</span></td>
+      <td class="k-margin">${c.margin.toLocaleString('en-IN')}<small>votes</small></td>
+    `;
+        knifeTbody.appendChild(tr);
+      });
+
+      // ── pagination controls ──
+      if (pagination) {
+        if (totalPages <= 1) { pagination.innerHTML = ''; return; }
+        const pages = buildPageNumbers(knifePage, totalPages);
+        const btnHtml = pages.map(p =>
+          p === '…'
+            ? `<span style="font-family:var(--mono);font-size:12px;color:var(--text-3);padding:0 4px">…</span>`
+            : `<button class="knife-page-btn${p === knifePage ? ' active' : ''}" data-p="${p}">${p}</button>`
+        ).join('');
+        pagination.innerHTML = `
+      <button class="knife-page-btn" id="kPrev" ${knifePage === 1 ? 'disabled' : ''}>‹</button>
+      ${btnHtml}
+      <button class="knife-page-btn" id="kNext" ${knifePage === totalPages ? 'disabled' : ''}>›</button>
+      <span class="knife-page-info">Page ${knifePage} of ${totalPages} · ${filtered.length} rows</span>
+    `;
+        pagination.querySelectorAll('.knife-page-btn[data-p]').forEach(btn => {
+          btn.addEventListener('click', () => { knifePage = parseInt(btn.dataset.p); renderKnifeTable(); });
+        });
+        pagination.querySelector('#kPrev')?.addEventListener('click', () => { knifePage--; renderKnifeTable(); });
+        pagination.querySelector('#kNext')?.addEventListener('click', () => { knifePage++; renderKnifeTable(); });
+      }
+    }
+
+    function buildPageNumbers(cur, total) {
+      if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
+      const pages = [];
+      pages.push(1);
+      if (cur > 3) pages.push('…');
+      for (let p = Math.max(2, cur - 1); p <= Math.min(total - 1, cur + 1); p++) pages.push(p);
+      if (cur < total - 2) pages.push('…');
+      pages.push(total);
+      return pages;
+    }
+
+    const CONSTITUENCY_PAGE_SIZE = 20;
+    let constituencyPage = 1;
+    let constituencySearchQuery = '';
+    let constituencyStatusQuery = '';
+    let constituencyPartyQuery = '';
+    let constituencySortMode = 'no'; // 'no', 'marginAsc', 'marginDesc'
+    let knifeMarginDesc = false;
+
+    function renderConstituencyTable(data) {
+      const tbody = document.getElementById('constituencyTbody');
+      const pagination = document.getElementById('constituencyPagination');
+      const badge = document.getElementById('constituencyBadge');
+      const searchInp = document.getElementById('constituencySearch');
+      const statusFilter = document.getElementById('constituencyStatusFilter');
+
+      // Restore search input value
+      if (searchInp && searchInp.value !== constituencySearchQuery) {
+        searchInp.value = constituencySearchQuery;
+      }
+      if (statusFilter && statusFilter.value !== constituencyStatusQuery) {
+        statusFilter.value = constituencyStatusQuery;
+      }
+
+      tbody.innerHTML = '';
+
+      if (!allConstituencies.length) {
+        tbody.innerHTML = `<tr><td colspan="6" style="padding:28px;text-align:center;color:var(--text-3);font-family:var(--mono);font-size:13px;letter-spacing:0.12em;">NO CONSTITUENCY DATA YET</td></tr>`;
+        if (pagination) pagination.innerHTML = '';
+        if (badge) badge.textContent = 'Tamil Nadu · 234 constituencies';
+        return;
+      }
+
+      // Filter by search query, party, and status
+      const filtered = allConstituencies.filter(c => {
+        if (constituencyPartyQuery) {
+          if (normalizeCode(codeOf(c.leadParty)) !== constituencyPartyQuery) return false;
+        }
+        if (constituencyStatusQuery) {
+          const isWon = (c.status || '').toLowerCase().includes('declared') || (c.status || '').toLowerCase() === 'won';
+          if (constituencyStatusQuery === 'won' && !isWon) return false;
+          if (constituencyStatusQuery === 'counting' && isWon) return false;
+        }
+        if (!constituencySearchQuery) return true;
+        const query = constituencySearchQuery.toLowerCase();
+        return (c.name || '').toLowerCase().includes(query) ||
+          String(c.no).includes(query) ||
+          (c.leadParty || '').toLowerCase().includes(query) ||
+          (c.leadCand || '').toLowerCase().includes(query);
+      });
+
+      // Populate party dropdown dynamically
+      const partySelect = document.getElementById('constituencyPartyFilter');
+      if (partySelect) {
+        const allCodes = [...new Set(allConstituencies.map(c => normalizeCode(codeOf(c.leadParty))).filter(Boolean))].sort();
+        const currentVal = partySelect.value;
+        partySelect.innerHTML = '<option value="">All Parties</option>' +
+          allCodes.map(code => `<option value="${code}"${code === constituencyPartyQuery ? ' selected' : ''}>${code}</option>`).join('');
+        // restore value in case repopulation reset it
+        if (constituencyPartyQuery) partySelect.value = constituencyPartyQuery;
+      }
+
+      filtered.sort((a, b) => {
+        if (constituencySortMode === 'marginAsc') return a.margin - b.margin;
+        if (constituencySortMode === 'marginDesc') return b.margin - a.margin;
+        return a.no - b.no;
+      });
+
+      const marginArrow = document.getElementById('constituencySortArrow');
+      if (marginArrow) {
+        if (constituencySortMode === 'marginAsc') marginArrow.textContent = '▲';
+        else if (constituencySortMode === 'marginDesc') marginArrow.textContent = '▼';
+        else { marginArrow.textContent = '—'; marginArrow.style.color = 'var(--border-2)'; }
+
+        if (constituencySortMode !== 'no') marginArrow.style.color = 'inherit';
+      }
+
+      const totalPages = Math.max(1, Math.ceil(filtered.length / CONSTITUENCY_PAGE_SIZE));
+      if (constituencyPage > totalPages) constituencyPage = totalPages;
+
+      if (badge) {
+        badge.textContent = filtered.length !== allConstituencies.length
+          ? `${filtered.length} of ${allConstituencies.length} constituencies`
+          : `Tamil Nadu · ${allConstituencies.length} constituencies`;
+      }
+
+      if (!filtered.length) {
+        tbody.innerHTML = `<tr><td colspan="6" style="padding:28px;text-align:center;color:var(--text-3);font-family:var(--mono);font-size:13px;letter-spacing:0.1em;">NO MATCHING RESULTS</td></tr>`;
+        if (pagination) pagination.innerHTML = '';
+        return;
+      }
+
+      const start = (constituencyPage - 1) * CONSTITUENCY_PAGE_SIZE;
+      const page = filtered.slice(start, start + CONSTITUENCY_PAGE_SIZE);
+
+      page.forEach((c, i) => {
+        const lc = normalizeCode(codeOf(c.leadParty));
+        const lcM = meta(lc);
+        const isWon = (c.status || '').toLowerCase().includes('declared') || (c.status || '').toLowerCase() === 'won';
+        const statusClass = isWon ? 'won' : 'counting';
+        const statusText = isWon ? 'Won' : 'Counting';
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+      <td class="constituency-num">${String(start + i + 1).padStart(3, '0')}</td>
+      <td>
+        <div class="constituency-name">${esc(c.name)}<small>AC ${c.no}</small></div>
+      </td>
+      <td>
+        <span class="constituency-party" style="--clr:${lcM.color}">${esc(lc)}</span>
+      </td>
+      <td>
+        <span class="constituency-cand">${esc(c.leadCand || '—')}</span>
+      </td>
+      <td>
+        <span class="constituency-status ${statusClass}">${statusText}</span>
+      </td>
+      <td class="constituency-margin">${c.margin ? c.margin.toLocaleString('en-IN') : '—'}<small>votes</small></td>
+    `;
+        tbody.appendChild(tr);
+      });
+
+      // ── pagination controls ──
+      if (pagination) {
+        if (totalPages <= 1) { pagination.innerHTML = ''; return; }
+        const pages = buildPageNumbers(constituencyPage, totalPages);
+        const btnHtml = pages.map(p =>
+          p === '…'
+            ? `<span style="font-family:var(--mono);font-size:12px;color:var(--text-3);padding:0 4px">…</span>`
+            : `<button class="constituency-page-btn${p === constituencyPage ? ' active' : ''}" data-p="${p}">${p}</button>`
+        ).join('');
+        pagination.innerHTML = `
+      <button class="constituency-page-btn" id="cPrev" ${constituencyPage === 1 ? 'disabled' : ''}>‹</button>
+      ${btnHtml}
+      <button class="constituency-page-btn" id="cNext" ${constituencyPage === totalPages ? 'disabled' : ''}>›</button>
+      <span class="constituency-page-info">Page ${constituencyPage} of ${totalPages} · ${filtered.length} rows</span>
+    `;
+        pagination.querySelectorAll('.constituency-page-btn[data-p]').forEach(btn => {
+          btn.addEventListener('click', () => { constituencyPage = parseInt(btn.dataset.p); renderConstituencyTable(); });
+        });
+        pagination.querySelector('#cPrev')?.addEventListener('click', () => { constituencyPage--; renderConstituencyTable(); });
+        pagination.querySelector('#cNext')?.addEventListener('click', () => { constituencyPage++; renderConstituencyTable(); });
+      }
+    }
+
+    const openDistricts = new Set();
+
+    function renderDistricts(data) {
+      const tbody = document.getElementById('districtTbody');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+      const constits = data.constituencies || [];
+      if (!constits.length) {
+        tbody.innerHTML = `<tr><td colspan="5" style="padding:28px;text-align:center;color:var(--text-3);font-family:var(--mono);font-size:12px;letter-spacing:0.12em;">NO CONSTITUENCY DATA YET</td></tr>`;
+        return;
+      }
+
+      // group constituencies by district
+      const distMap = {};
+      constits.forEach(c => {
+        const dname = AC_DISTRICT[c.no] || 'Other';
+        if (!distMap[dname]) distMap[dname] = [];
+        distMap[dname].push(c);
+      });
+
+      // build per-district stats
+      const rows = DISTRICT_ORDER.map(name => {
+        const seats = distMap[name] || [];
+        const totalSeatsInDistrict = DISTRICT_TOTAL[name] || 0;
+        const partyCounts = {};
+        seats.forEach(c => {
+          const code = codeOf(c.leadParty) || 'Other';
+          partyCounts[code] = (partyCounts[code] || 0) + 1;
+        });
+        const sorted = Object.entries(partyCounts).sort((a, b) => b[1] - a[1]);
+        return { name, total: totalSeatsInDistrict, counted: seats.length, parties: sorted, seats };
+      }).filter(d => d.counted > 0).sort((a, b) => b.counted - a.counted);
+
+      document.getElementById('districtBadge').textContent =
+        `Tamil Nadu · ${rows.length} districts with data`;
+
+      rows.forEach((d, i) => {
+        const topCode = d.parties[0]?.[0] || null;
+        const topMeta = topCode ? meta(topCode) : null;
+        const dominated = d.parties.length === 1 || d.parties[0][1] === d.counted;
+        const countedTotal = d.parties.reduce((s, [, n]) => s + n, 0);
+
+        const segments = d.parties.map(([code, n]) => {
+          const w = (n / countedTotal * 100).toFixed(1);
+          return `<i style="background:${meta(code).color};width:${w}%;display:inline-block;height:100%" title="${code}: ${n}"></i>`;
+        }).join('');
+
+        const breakdown = d.parties.slice(0, 5).map(([code, n]) =>
+          `<span style="color:${meta(code).color};font-weight:700">${esc(code)}</span><span style="color:var(--text-3)"> ${n}</span>`
+        ).join('<span style="color:var(--border-2);margin:0 3px">·</span>');
+
+        // ── main row ──
+        const tr = document.createElement('tr');
+        tr.className = 'dt-row' + (openDistricts.has(d.name) ? ' open' : '');
+        tr.dataset.district = d.name;
+        tr.innerHTML = `
+      <td class="dt-num"><span class="dt-chevron">▸</span></td>
+      <td class="dt-name">${esc(d.name)}<small>${d.total} seats total</small></td>
+      <td>
+        ${topMeta ? `<span class="dt-chip" style="--clr:${topMeta.color}">${esc(topCode)}</span>` : '—'}
+        ${dominated && d.counted > 1 ? '<span class="dt-sweep">SWEEP</span>' : ''}
+      </td>
+      <td>
+        <div class="dt-bar">${segments}</div>
+        <div class="dt-breakdown">${breakdown}</div>
+      </td>
+      <td class="dt-count">${d.counted}<small>of ${d.total}</small></td>
+    `;
+
+        // ── detail row ──
+        const detailTr = document.createElement('tr');
+        detailTr.className = 'dt-detail-row' + (openDistricts.has(d.name) ? ' open' : '');
+        detailTr.dataset.district = d.name;
+        const detailTd = document.createElement('td');
+        detailTd.colSpan = 5;
+        detailTd.innerHTML = `<div class="dt-detail-inner">${buildDistrictDetail(d.seats)}</div>`;
+        detailTr.appendChild(detailTd);
+
+        // set initial display
+        detailTr.style.display = openDistricts.has(d.name) ? 'table-row' : 'none';
+
+        // click to toggle
+        tr.addEventListener('click', () => {
+          const isOpen = detailTr.style.display === 'table-row';
+          detailTr.style.display = isOpen ? 'none' : 'table-row';
+          tr.classList.toggle('open', !isOpen);
+          if (!isOpen) openDistricts.add(d.name); else openDistricts.delete(d.name);
+        });
+
+        tbody.appendChild(tr);
+        tbody.appendChild(detailTr);
+      });
+
+      // re-apply search filter
+      applyDistrictSearch();
+    }
+
+    function buildDistrictDetail(seats) {
+      if (!seats || !seats.length) return '<p style="padding:12px 0;color:var(--text-3);font-family:var(--mono);font-size:11px">No data</p>';
+      const sorted = [...seats].sort((a, b) => a.no - b.no);
+      const trs = sorted.map(c => {
+        const lc = codeOf(c.leadParty), tc = codeOf(c.trailParty);
+        const lcM = meta(lc), tcM = meta(tc);
+        const isWon = (c.status || '').toLowerCase().includes('declared') || (c.status || '').toLowerCase() === 'won';
+        const statusCls = isWon ? 'won' : 'counting';
+        const statusText = isWon ? 'RESULT' : 'COUNTING';
+        return `<tr>
+      <td class="dm-ac">AC ${c.no}</td>
+      <td class="dm-name">${esc(c.name)}</td>
+      <td>
+        <span class="dm-party" style="--clr:${lcM.color}">${esc(lc)}</span>
+        <span class="dm-cand">${esc(c.leadCand || '—')}</span>
+      </td>
+      <td>
+        <span class="dm-party" style="--clr:${tcM.color}">${esc(tc)}</span>
+        <span class="dm-cand">${esc(c.trailCand || '—')}</span>
+      </td>
+      <td class="dm-round">${esc(c.round || '—')}</td>
+      <td class="dm-margin">${c.margin.toLocaleString('en-IN')}<small>votes</small></td>
+      <td class="dm-status ${statusCls}">${statusText}</td>
+    </tr>`;
+      }).join('');
+      return `<table class="dm-table">
+    <thead><tr>
+      <th>AC</th><th>Constituency</th><th>Leading</th><th>Trailing</th><th>Round</th><th class="r">Margin</th><th>Status</th>
+    </tr></thead>
+    <tbody>${trs}</tbody>
+  </table>`;
+    }
+
+    function applyDistrictSearch() {
+      const q = (document.getElementById('districtSearch')?.value || '').trim().toLowerCase();
+      const allRows = document.querySelectorAll('#districtTbody .dt-row');
+      allRows.forEach(tr => {
+        const match = !q || tr.dataset.district.toLowerCase().includes(q);
+        tr.style.display = match ? '' : 'none';
+        const next = tr.nextElementSibling;
+        if (next?.classList.contains('dt-detail-row')) {
+          if (!match) {
+            next.style.display = 'none';
+          } else {
+            // restore to whatever the open state says — don't override it
+            next.style.display = openDistricts.has(tr.dataset.district) ? 'table-row' : 'none';
+          }
+        }
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const inp = document.getElementById('districtSearch');
+      if (inp) inp.addEventListener('input', applyDistrictSearch);
+
+      const constituencySearch = document.getElementById('constituencySearch');
+      if (constituencySearch) {
+        constituencySearch.value = constituencySearchQuery;
+        constituencySearch.addEventListener('input', (e) => {
+          constituencySearchQuery = e.target.value.trim();
+          constituencyPage = 1;
+          renderConstituencyTable();
+        });
+      }
+
+      const constituencyStatusFilter = document.getElementById('constituencyStatusFilter');
+      if (constituencyStatusFilter) {
+        constituencyStatusFilter.value = constituencyStatusQuery;
+        constituencyStatusFilter.addEventListener('change', (e) => {
+          constituencyStatusQuery = e.target.value;
+          constituencyPage = 1;
+          renderConstituencyTable();
+        });
+      }
+
+      const constituencyPartyFilter = document.getElementById('constituencyPartyFilter');
+      if (constituencyPartyFilter) {
+        constituencyPartyFilter.addEventListener('change', (e) => {
+          constituencyPartyQuery = e.target.value;
+          constituencyPage = 1;
+          renderConstituencyTable();
+        });
+      }
+
+      const leadF = document.getElementById('knifeLeadFilter');
+      if (leadF) leadF.addEventListener('change', () => { knifePage = 1; renderKnifeTable(); });
+
+      const trailF = document.getElementById('knifeTrailFilter');
+      if (trailF) trailF.addEventListener('change', () => { knifePage = 1; renderKnifeTable(); });
+
+      const marginF = document.getElementById('knifeMarginInput');
+      if (marginF) marginF.addEventListener('input', () => { knifePage = 1; renderKnifeTable(); });
+
+      const knifeMarginHeader = document.getElementById('knifeMarginHeader');
+      if (knifeMarginHeader) {
+        knifeMarginHeader.addEventListener('click', () => {
+          knifeMarginDesc = !knifeMarginDesc;
+          renderKnifeTable();
+        });
+      }
+
+      const constituencyMarginHeader = document.getElementById('constituencyMarginHeader');
+      if (constituencyMarginHeader) {
+        constituencyMarginHeader.addEventListener('click', () => {
+          if (constituencySortMode === 'no') constituencySortMode = 'marginAsc';
+          else if (constituencySortMode === 'marginAsc') constituencySortMode = 'marginDesc';
+          else constituencySortMode = 'no';
+          constituencyPage = 1;
+          renderConstituencyTable();
+        });
+      }
+    });
+
+    refresh(false);
+  </script>
+</body>
+
+</html>

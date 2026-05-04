@@ -1,0 +1,1082 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Verdict 2026 — Tamil Nadu Assembly</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,800;0,9..144,900;1,9..144,400;1,9..144,500&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=JetBrains+Mono:wght@400;500;700&family=Noto+Sans+Tamil:wght@400;500;700&display=swap" rel="stylesheet" />
+<style>
+:root {
+  --ink-1: #0B0A08;
+  --ink-2: #14110D;
+  --ink-3: #1E1A14;
+  --ink-4: #2A241B;
+  --rule:  #3A3225;
+  --paper-1: #F2EBD9;
+  --paper-2: #C9C0AB;
+  --paper-3: #908775;
+  --paper-4: #5C5648;
+  --kumkum: #C7472D;
+  --gold:   #C99F4E;
+  --vermilion: #E0532A;
+  --moss:   #6F8E5A;
+
+  --tvk:  #E94BD3;
+  --admk: #C2A268;
+  --dmk:  #2BC275;
+  --pmk:  #8FA049;
+  --inc:  #3FA9F5;
+  --bjp:  #FF8C42;
+  --dmdk: #E6C018;
+  --vck:  #95C246;
+  --cpi:  #E03E3E;
+  --iuml: #2E9B57;
+  --ammk: #B23BA1;
+  --cpim: #FF4040;
+  --other: #8B8676;
+
+  --serif: 'Fraunces', 'Newsreader', Georgia, serif;
+  --read:  'Newsreader', Georgia, serif;
+  --mono:  'JetBrains Mono', ui-monospace, monospace;
+  --tamil: 'Noto Sans Tamil', sans-serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body { background: var(--ink-1); color: var(--paper-1); }
+
+body {
+  font-family: var(--read);
+  font-size: 16px;
+  line-height: 1.55;
+  font-feature-settings: "ss01", "kern", "liga", "calt";
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  background-image:
+    radial-gradient(ellipse 80% 60% at 20% 0%, rgba(199,71,45,0.06), transparent 60%),
+    radial-gradient(ellipse 60% 50% at 90% 30%, rgba(201,159,78,0.04), transparent 70%),
+    linear-gradient(180deg, #0E0C09 0%, var(--ink-1) 40%);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  pointer-events: none;
+  z-index: 1000;
+  opacity: .35;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='300'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.5 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+}
+
+.shell { max-width: 1440px; margin: 0 auto; padding: 28px 48px 80px; position: relative; }
+
+/* ---- skeleton loading ---- */
+.skel {
+  background: linear-gradient(90deg, var(--ink-3) 0%, var(--ink-4) 50%, var(--ink-3) 100%);
+  background-size: 200% 100%;
+  animation: shimmer 1.6s infinite;
+  color: transparent !important;
+  border-radius: 2px;
+}
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ---------- masthead ---------- */
+.masthead {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  padding: 14px 0 16px;
+  border-bottom: 1px solid var(--rule);
+  font-family: var(--mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--paper-3);
+}
+.masthead .left { display: flex; gap: 28px; align-items: center; }
+.masthead .center { font-family: var(--serif); font-weight: 600; font-size: 13px; letter-spacing: 0.32em; color: var(--paper-1); }
+.masthead .right { text-align: right; display: flex; gap: 18px; justify-content: flex-end; align-items: center; }
+.live-pip {
+  display: inline-flex; align-items: center; gap: 8px;
+  color: var(--kumkum); font-weight: 700;
+}
+.live-pip::before {
+  content: ''; width: 7px; height: 7px; border-radius: 50%;
+  background: var(--kumkum);
+  box-shadow: 0 0 0 0 rgba(199,71,45,.7);
+  animation: pulse 1.6s infinite;
+}
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(199,71,45,.7); }
+  70% { box-shadow: 0 0 0 8px rgba(199,71,45,0); }
+  100% { box-shadow: 0 0 0 0 rgba(199,71,45,0); }
+}
+.refresh-btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: transparent;
+  border: 1px solid var(--rule);
+  color: var(--paper-2);
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  padding: 7px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all .2s ease;
+}
+.refresh-btn:hover { border-color: var(--gold); color: var(--gold); }
+.refresh-btn .spin {
+  width: 11px; height: 11px;
+  border: 1.5px solid currentColor;
+  border-top-color: transparent;
+  border-radius: 50%;
+}
+.refresh-btn.loading .spin { animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.refresh-btn:disabled { opacity: 0.55; cursor: progress; }
+.tag-stale { color: var(--gold) !important; }
+.tag-error { color: var(--kumkum) !important; }
+
+/* ---------- title block ---------- */
+.title-block {
+  padding: 56px 0 36px;
+  border-bottom: 1px solid var(--rule);
+  position: relative;
+}
+.eyebrow {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--paper-3);
+  display: flex; align-items: center; gap: 14px;
+  margin-bottom: 28px;
+}
+.eyebrow::after { content: ''; flex: 1; height: 1px; background: var(--rule); }
+.kicker {
+  font-family: var(--tamil);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--gold);
+  letter-spacing: 0.04em;
+  margin-bottom: 8px;
+  opacity: 0; animation: rise .9s .1s both;
+}
+h1.headline {
+  font-family: var(--serif);
+  font-weight: 300;
+  font-size: clamp(48px, 8.8vw, 134px);
+  line-height: 0.92;
+  letter-spacing: -0.035em;
+  color: var(--paper-1);
+  font-variation-settings: "opsz" 144;
+}
+h1.headline .em {
+  font-weight: 800;
+  font-style: italic;
+  font-variation-settings: "opsz" 144;
+  letter-spacing: -0.05em;
+}
+h1.headline .light {
+  font-weight: 300; font-style: italic; color: var(--paper-2);
+}
+h1.headline > span {
+  display: inline-block;
+  opacity: 0;
+  animation: rise 1s cubic-bezier(.2,.7,.2,1) both;
+}
+h1.headline > span:nth-child(1) { animation-delay: .15s; }
+h1.headline > span:nth-child(2) { animation-delay: .28s; }
+h1.headline > span:nth-child(3) { animation-delay: .41s; }
+h1.headline > span:nth-child(4) { animation-delay: .54s; }
+@keyframes rise {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.lede {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr;
+  gap: 64px;
+  margin-top: 40px;
+  align-items: end;
+}
+.lede p {
+  font-family: var(--read);
+  font-size: 19px;
+  line-height: 1.55;
+  color: var(--paper-2);
+  max-width: 56ch;
+  font-feature-settings: "onum";
+}
+.lede p::first-letter {
+  font-family: var(--serif);
+  font-weight: 800;
+  font-size: 5em;
+  line-height: 0.85;
+  float: left;
+  margin: 0.05em 0.12em -0.1em -0.02em;
+  color: var(--kumkum);
+  font-variation-settings: "opsz" 144;
+}
+.lede p strong { color: var(--paper-1); font-weight: 600; }
+.lede .meta {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  border-left: 1px solid var(--rule);
+}
+.lede .meta .cell {
+  padding: 14px 22px;
+  border-bottom: 1px solid var(--rule);
+}
+.lede .meta .cell:nth-child(odd) { border-right: 1px solid var(--rule); }
+.lede .meta .cell:nth-last-child(-n+2) { border-bottom: none; }
+.lede .meta dt {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--paper-3);
+  margin-bottom: 6px;
+}
+.lede .meta dd {
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: 28px;
+  color: var(--paper-1);
+  font-variation-settings: "opsz" 60;
+  font-feature-settings: "tnum";
+  letter-spacing: -0.01em;
+}
+.lede .meta dd .unit { font-size: 13px; color: var(--paper-3); margin-left: 4px; font-family: var(--mono); font-weight: 400; letter-spacing: 0.1em; }
+
+/* ---------- ribbon ---------- */
+.ribbon-wrap { margin-top: 64px; padding-top: 32px; border-top: 1px solid var(--rule); }
+.ribbon-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 24px; gap: 16px; flex-wrap: wrap; }
+.section-title { font-family: var(--serif); font-weight: 500; font-style: italic; font-size: 28px; letter-spacing: -0.01em; color: var(--paper-1); }
+.section-title .num { font-family: var(--mono); font-style: normal; font-weight: 700; font-size: 12px; letter-spacing: 0.18em; color: var(--gold); margin-right: 14px; vertical-align: middle; }
+.section-sub { font-family: var(--mono); font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--paper-3); }
+
+.ribbon { position: relative; display: grid; grid-template-columns: repeat(39, 1fr); gap: 3px; padding: 24px 0 56px; }
+.cell {
+  aspect-ratio: 1 / 1.6;
+  background: var(--ink-3);
+  border-radius: 1.5px;
+  opacity: 0;
+  animation: cellIn .45s cubic-bezier(.2,.8,.3,1) both;
+}
+@keyframes cellIn {
+  from { opacity: 0; transform: translateY(6px) scale(.7); }
+  to   { opacity: 1; transform: none; }
+}
+.majority-line {
+  position: absolute;
+  top: 0; bottom: 12px;
+  width: 0;
+  border-left: 1px dashed var(--gold);
+  pointer-events: none;
+}
+.majority-line::after {
+  content: 'MAJORITY · 118';
+  position: absolute;
+  top: -22px; left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--mono); font-size: 9.5px; letter-spacing: 0.24em; color: var(--gold);
+  background: var(--ink-1); padding: 0 6px; white-space: nowrap;
+}
+.ribbon-key { display: flex; flex-wrap: wrap; gap: 4px 22px; font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--paper-2); padding-top: 8px; border-top: 1px solid var(--rule); }
+.ribbon-key span { display: inline-flex; align-items: center; gap: 7px; }
+.ribbon-key i { display: inline-block; width: 9px; height: 9px; border-radius: 1px; }
+
+/* ---------- main grid ---------- */
+.grid-2 { display: grid; grid-template-columns: 1.2fr 1fr; gap: 56px; margin-top: 72px; padding-top: 32px; border-top: 1px solid var(--rule); }
+
+/* leaderboard */
+.lb-row {
+  display: grid;
+  grid-template-columns: 28px 56px 1fr 90px;
+  align-items: center;
+  gap: 18px;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--ink-4);
+  position: relative;
+  opacity: 0;
+  animation: rowIn .7s cubic-bezier(.2,.8,.3,1) both;
+}
+@keyframes rowIn {
+  from { opacity: 0; transform: translateX(-16px); }
+  to   { opacity: 1; transform: none; }
+}
+.lb-row .rank { font-family: var(--mono); font-size: 11px; font-weight: 500; letter-spacing: 0.14em; color: var(--paper-3); }
+.lb-row .badge {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: 14px;
+  letter-spacing: 0.04em;
+  background: var(--ink-3);
+  padding: 8px 0;
+  text-align: center;
+  border-radius: 2px;
+  border-left: 3px solid var(--clr);
+  font-variation-settings: "opsz" 18;
+}
+.lb-row .meta { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.lb-row .pname {
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: 21px;
+  color: var(--paper-1);
+  letter-spacing: -0.005em;
+  font-variation-settings: "opsz" 36;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.lb-row .bar { position: relative; height: 6px; background: var(--ink-3); border-radius: 999px; overflow: hidden; }
+.lb-row .bar > i {
+  position: absolute; left: 0; top: 0; bottom: 0;
+  width: 0;
+  background: var(--clr);
+  border-radius: 999px;
+  animation: fillBar 1.4s cubic-bezier(.2,.8,.2,1) both;
+  --w: 0%;
+  animation-delay: var(--delay, 0s);
+}
+@keyframes fillBar { from { width: 0; } to { width: var(--w); } }
+.lb-row .seats {
+  text-align: right;
+  font-family: var(--serif);
+  font-weight: 600;
+  font-size: 36px;
+  color: var(--paper-1);
+  font-variation-settings: "opsz" 60;
+  font-feature-settings: "tnum";
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+.lb-row .seats .lbl {
+  display: block;
+  font-family: var(--mono); font-weight: 400; font-size: 9.5px;
+  letter-spacing: 0.2em; color: var(--paper-3);
+  margin-top: 4px; text-transform: uppercase;
+}
+.lb-row.leader .pname, .lb-row.leader .seats { color: var(--clr); }
+
+/* right column */
+.right-col { display: flex; flex-direction: column; gap: 56px; }
+
+.donut-card { display: grid; grid-template-columns: 280px 1fr; gap: 36px; align-items: center; }
+.donut { position: relative; width: 280px; height: 280px; }
+.donut svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.donut .arc { fill: none; stroke-width: 24; }
+.donut .center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+.donut .center .total { font-family: var(--serif); font-weight: 600; font-size: 64px; color: var(--paper-1); font-variation-settings: "opsz" 96; letter-spacing: -0.04em; line-height: 1; }
+.donut .center .lbl { font-family: var(--mono); font-size: 9.5px; letter-spacing: 0.28em; text-transform: uppercase; color: var(--paper-3); margin-top: 8px; }
+.donut-legend { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 16px; font-family: var(--mono); font-size: 11px; letter-spacing: 0.06em; color: var(--paper-2); }
+.donut-legend > div { display: flex; align-items: center; gap: 8px; }
+.donut-legend i { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.donut-legend strong { margin-left: auto; font-weight: 500; color: var(--paper-1); font-feature-settings: "tnum"; }
+
+/* anomaly */
+.anomaly { border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); padding: 32px 0; position: relative; }
+.anomaly::before, .anomaly::after { content: ''; position: absolute; left: 0; right: 0; height: 1px; background: var(--rule); }
+.anomaly::before { top: -4px; }
+.anomaly::after { bottom: -4px; }
+.anomaly h3 { font-family: var(--serif); font-style: italic; font-weight: 400; font-size: 26px; line-height: 1.15; color: var(--paper-1); margin-bottom: 8px; }
+.anomaly h3 em { font-style: italic; color: var(--gold); font-weight: 600; }
+.anomaly p { font-family: var(--read); font-size: 15px; color: var(--paper-2); max-width: 52ch; margin-bottom: 24px; }
+
+.compare {
+  display: grid;
+  grid-template-columns: 70px 1fr 1fr;
+  gap: 0;
+  font-family: var(--mono);
+  font-size: 11px;
+}
+.compare .h { font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--paper-3); padding: 10px 0 8px; border-bottom: 1px solid var(--rule); }
+.compare .h.right { text-align: right; }
+.compare .row { display: contents; }
+.compare .row > div { padding: 14px 0; border-bottom: 1px solid var(--ink-4); display: flex; align-items: center; gap: 10px; position: relative; }
+.compare .party { font-family: var(--serif); font-style: italic; font-weight: 600; font-size: 17px; color: var(--paper-1); }
+.compare .bar2 { flex: 1; height: 18px; position: relative; background: repeating-linear-gradient(90deg, var(--ink-3) 0 1px, transparent 1px 10%); }
+.compare .bar2 i { position: absolute; top: 0; bottom: 0; left: 0; background: var(--clr); width: var(--w, 0); transition: width 1.2s cubic-bezier(.2,.8,.2,1); }
+.compare .bar2.flip i { left: auto; right: 0; }
+.compare .bar2.flip { background: repeating-linear-gradient(-90deg, var(--ink-3) 0 1px, transparent 1px 10%); }
+.compare .num { font-feature-settings: "tnum"; color: var(--paper-1); font-weight: 500; font-size: 13px; letter-spacing: 0.04em; margin-left: 6px; min-width: 56px; }
+.compare .col-right { justify-content: flex-end; }
+.compare .col-right .num { margin-left: 0; margin-right: 6px; text-align: right; }
+
+/* knife-edge table */
+.knife-wrap { margin-top: 80px; padding-top: 32px; border-top: 1px solid var(--rule); }
+.knife-table { width: 100%; border-collapse: collapse; font-family: var(--read); margin-top: 18px; }
+.knife-table thead th {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--paper-3);
+  font-weight: 500;
+  text-align: left;
+  padding: 14px 12px 14px 0;
+  border-bottom: 1px solid var(--rule);
+}
+.knife-table thead th.r { text-align: right; padding-right: 0; }
+.knife-table tbody tr {
+  border-bottom: 1px solid var(--ink-4);
+  transition: background .15s ease;
+  opacity: 0;
+  animation: rise .55s cubic-bezier(.2,.8,.3,1) both;
+}
+.knife-table tbody tr:hover { background: var(--ink-2); }
+.knife-table tbody td {
+  padding: 16px 12px 16px 0;
+  vertical-align: middle;
+  font-size: 14.5px;
+  color: var(--paper-1);
+}
+.knife-table .rank {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  color: var(--paper-3);
+  width: 36px;
+}
+.knife-table .const {
+  font-family: var(--serif);
+  font-style: italic;
+  font-weight: 500;
+  font-size: 18px;
+  font-variation-settings: "opsz" 36;
+  letter-spacing: -0.005em;
+}
+.knife-table .const small {
+  display: block;
+  font-style: normal;
+  font-family: var(--mono);
+  font-size: 9.5px;
+  letter-spacing: 0.16em;
+  color: var(--paper-3);
+  margin-top: 2px;
+  text-transform: uppercase;
+}
+.knife-table .cand-cell { display: flex; flex-direction: column; gap: 3px; min-width: 160px; }
+.knife-table .cand-cell .nm { color: var(--paper-1); font-size: 14px; line-height: 1.25; }
+.knife-table .cand-cell .pty {
+  font-family: var(--mono);
+  font-size: 9.5px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--clr, var(--paper-3));
+  display: inline-flex; align-items: center; gap: 7px;
+  font-weight: 600;
+}
+.knife-table .cand-cell .pty::before {
+  content: ''; width: 7px; height: 7px; border-radius: 1px;
+  background: var(--clr, var(--paper-3));
+  display: inline-block;
+}
+.knife-table .vs {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 13px;
+  color: var(--paper-3);
+  text-align: center;
+  width: 30px;
+  padding: 0 !important;
+}
+.knife-table .margin {
+  text-align: right;
+  font-family: var(--mono);
+  font-feature-settings: "tnum";
+  font-weight: 700;
+  font-size: 18px;
+  color: var(--paper-1);
+  padding-right: 0 !important;
+  letter-spacing: -0.01em;
+}
+.knife-table .margin small {
+  display: block;
+  font-family: var(--mono);
+  font-size: 9.5px;
+  letter-spacing: 0.18em;
+  font-weight: 400;
+  text-transform: uppercase;
+  color: var(--paper-3);
+  margin-top: 3px;
+}
+.knife-table tr.razor .margin { color: var(--kumkum); }
+.knife-table tr.razor .const::after {
+  content: 'RAZOR';
+  display: inline-block;
+  margin-left: 8px;
+  font-family: var(--mono);
+  font-style: normal;
+  font-size: 8.5px;
+  letter-spacing: 0.2em;
+  background: var(--kumkum);
+  color: var(--ink-1);
+  padding: 2px 6px;
+  border-radius: 2px;
+  vertical-align: middle;
+  font-weight: 700;
+}
+.knife-progress {
+  position: relative;
+  flex: 1;
+  height: 6px;
+  background: var(--ink-3);
+  border-radius: 999px;
+  overflow: hidden;
+  min-width: 100px;
+}
+.knife-progress .a, .knife-progress .b {
+  position: absolute; top: 0; bottom: 0;
+  --aw: 50%;
+}
+.knife-progress .a { left: 0; right: calc(50% - var(--aw)/2); background: var(--clrA); }
+.knife-progress .b { right: 0; left: calc(50% - var(--bw)/2); background: var(--clrB); opacity: .55; }
+
+.knife-foot {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--paper-3);
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px solid var(--ink-4);
+}
+
+/* footer */
+.footer {
+  margin-top: 80px; padding-top: 28px; border-top: 1px solid var(--rule);
+  display: grid; grid-template-columns: 1fr auto 1fr; gap: 32px; align-items: baseline;
+  font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--paper-3);
+}
+.footer .center { text-align: center; font-family: var(--serif); font-style: italic; font-size: 13px; letter-spacing: 0; text-transform: none; color: var(--paper-2); }
+.footer .right { text-align: right; }
+.footer a { color: var(--paper-2); text-decoration: none; border-bottom: 1px solid var(--rule); }
+.footer a:hover { color: var(--gold); border-color: var(--gold); }
+
+/* responsive */
+@media (max-width: 1100px) {
+  .shell { padding: 20px 24px 60px; }
+  .lede { grid-template-columns: 1fr; gap: 40px; }
+  .grid-2 { grid-template-columns: 1fr; gap: 64px; }
+  .donut-card { grid-template-columns: 1fr; }
+  .donut { margin: 0 auto; }
+  .ribbon { grid-template-columns: repeat(26, 1fr); }
+}
+@media (max-width: 720px) {
+  .shell { padding: 16px 16px 40px; }
+  .masthead { grid-template-columns: 1fr; gap: 8px; text-align: left; }
+  .masthead .center, .masthead .right { text-align: left; justify-content: flex-start; }
+  .lb-row { grid-template-columns: 22px 44px 1fr 66px; gap: 12px; }
+  .lb-row .pname { font-size: 16px; }
+  .lb-row .seats { font-size: 26px; }
+  .donut { width: 220px; height: 220px; }
+  .donut .center .total { font-size: 48px; }
+  .ribbon { grid-template-columns: repeat(18, 1fr); }
+  h1.headline { font-size: 56px; }
+  .compare { grid-template-columns: 56px 1fr 1fr; }
+  .compare .party { font-size: 14px; }
+  .knife-table { font-size: 13px; }
+  .knife-table .const { font-size: 15px; }
+}
+
+/* update flash */
+@keyframes flash {
+  0% { background: rgba(201,159,78,0.18); }
+  100% { background: transparent; }
+}
+.flash { animation: flash 1.4s ease-out; }
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <!-- ===== MASTHEAD ===== -->
+  <header class="masthead">
+    <div class="left">
+      <span class="live-pip" id="livePip">LIVE</span>
+      <span id="dateNow">— · —</span>
+    </div>
+    <div class="center">VERDICT 2026</div>
+    <div class="right">
+      <span id="updatedTag">Updated <span id="updatedAgo" style="color:var(--paper-1);">—</span></span>
+      <button class="refresh-btn" id="refreshBtn" type="button" aria-label="Refresh data now">
+        <span class="spin"></span><span>Refresh</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- ===== TITLE BLOCK ===== -->
+  <section class="title-block">
+    <div class="eyebrow">
+      <span>Tamil Nadu — General Election to the Assembly</span>
+      <span style="font-family:var(--serif); font-style:italic; letter-spacing:0; text-transform:none; font-size:13px; color:var(--paper-3); flex:none;">234 constituencies · 118 to majority</span>
+    </div>
+    <div class="kicker">தமிழ்நாடு சட்டப்பேரவைத் தேர்தல்</div>
+    <h1 class="headline" id="headline">
+      <span>A serif-clean</span>
+      <span class="em" id="hLeader" style="color:var(--paper-3);">—</span>
+      <span class="light">surge</span>
+      <span>upends Dravidian arithmetic.</span>
+    </h1>
+
+    <div class="lede">
+      <p id="ledeP">Loading the latest counting-day trends from the Election Commission of India…</p>
+      <dl class="meta">
+        <div class="cell"><dt>Largest party</dt><dd id="metaLeader">—<span class="unit">leading</span></dd></div>
+        <div class="cell"><dt>Short of majority</dt><dd id="metaShort">—<span class="unit">seats</span></dd></div>
+        <div class="cell"><dt>Total seats</dt><dd id="metaTotal">—</dd></div>
+        <div class="cell"><dt>Parties on board</dt><dd id="metaParties">—</dd></div>
+      </dl>
+    </div>
+  </section>
+
+  <!-- ===== RIBBON ===== -->
+  <section class="ribbon-wrap">
+    <div class="ribbon-head">
+      <h2 class="section-title"><span class="num">§ 01</span>The 234, in order</h2>
+      <span class="section-sub">Each cell · one constituency · sorted by party</span>
+    </div>
+    <div class="ribbon" id="ribbon">
+      <div class="majority-line" id="majLine"></div>
+    </div>
+    <div class="ribbon-key" id="ribbonKey"></div>
+  </section>
+
+  <!-- ===== MAIN GRID ===== -->
+  <div class="grid-2">
+
+    <!-- LEADERBOARD -->
+    <section>
+      <div class="ribbon-head">
+        <h2 class="section-title"><span class="num">§ 02</span>Party standings</h2>
+        <span class="section-sub">Won + leading</span>
+      </div>
+      <div id="lb"></div>
+    </section>
+
+    <!-- RIGHT COLUMN -->
+    <div class="right-col">
+
+      <section>
+        <div class="ribbon-head">
+          <h2 class="section-title"><span class="num">§ 03</span>Distribution</h2>
+          <span class="section-sub">Share of 234</span>
+        </div>
+        <div class="donut-card">
+          <div class="donut">
+            <svg viewBox="0 0 200 200" id="donutSvg" aria-hidden="true"></svg>
+            <div class="center">
+              <div class="total" id="donutTotal">—</div>
+              <div class="lbl">Assembly seats</div>
+            </div>
+          </div>
+          <div class="donut-legend" id="donutLegend"></div>
+        </div>
+      </section>
+
+      <!-- ANOMALY -->
+      <section class="anomaly" id="anomalySec">
+        <div class="ribbon-head" style="margin-bottom: 14px;">
+          <h2 class="section-title"><span class="num">§ 04</span>The seat–vote inversion</h2>
+        </div>
+        <h3 id="anomalyH">Vote share rarely matches seat share.</h3>
+        <p id="anomalyP">Counting-day vote share posts the DMK ahead — but its support concentrates in fewer constituencies than the TVK's broader, thinner spread, which converts into a seat lead.</p>
+        <div class="compare" id="compare"></div>
+        <p style="font-family: var(--mono); font-size: 10px; letter-spacing: 0.06em; color: var(--paper-3); margin-top: 18px; max-width: none;" id="anomalyFoot"></p>
+      </section>
+
+    </div>
+  </div>
+
+  <!-- ===== KNIFE-EDGE TABLE ===== -->
+  <section class="knife-wrap">
+    <div class="ribbon-head">
+      <h2 class="section-title"><span class="num">§ 05</span>Knife-edge constituencies</h2>
+      <span class="section-sub" id="knifeSub">Tightest 12 races · sorted by current margin</span>
+    </div>
+    <table class="knife-table" id="knifeTable">
+      <thead>
+        <tr>
+          <th class="rank">#</th>
+          <th>Constituency</th>
+          <th>Leading</th>
+          <th></th>
+          <th>Trailing</th>
+          <th>Round</th>
+          <th class="r">Margin</th>
+        </tr>
+      </thead>
+      <tbody id="knifeBody"></tbody>
+    </table>
+    <div class="knife-foot" id="knifeFoot">— races within 1,000 votes flagged razor-thin —</div>
+  </section>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="footer">
+    <div class="left">Source · <a href="https://results.eci.gov.in/ResultAcGenMay2026/partywiseresult-S22.htm" target="_blank" rel="noreferrer">results.eci.gov.in</a></div>
+    <div class="center">— Set in Fraunces &amp; Newsreader —</div>
+    <div class="right">Polls every <span style="color:var(--paper-1);">45s</span></div>
+  </footer>
+
+</div>
+
+<script>
+// ---- party metadata ----
+const PARTY_META = {
+  'TVK':    { color: '#E94BD3', short: 'TVK',    long: 'Tamilaga Vettri Kazhagam' },
+  'ADMK':   { color: '#C2A268', short: 'AIADMK', long: 'AIADMK' },
+  'DMK':    { color: '#2BC275', short: 'DMK',    long: 'DMK' },
+  'PMK':    { color: '#8FA049', short: 'PMK',    long: 'Pattali Makkal Katchi' },
+  'INC':    { color: '#3FA9F5', short: 'INC',    long: 'Indian National Congress' },
+  'BJP':    { color: '#FF8C42', short: 'BJP',    long: 'Bharatiya Janata Party' },
+  'DMDK':   { color: '#E6C018', short: 'DMDK',   long: 'Desiya Murpokku Dravida Kazhagam' },
+  'VCK':    { color: '#95C246', short: 'VCK',    long: 'Viduthalai Chiruthaigal Katchi' },
+  'CPI':    { color: '#E03E3E', short: 'CPI',    long: 'Communist Party of India' },
+  'IUML':   { color: '#2E9B57', short: 'IUML',   long: 'Indian Union Muslim League' },
+  'AMMKMNKZ':{color: '#B23BA1', short: 'AMMK',   long: 'Amma Makkal Munnettra Kazagam' },
+  'CPI(M)': { color: '#FF4040', short: 'CPI(M)', long: 'CPI(M)' },
+  'NTK':    { color: '#0b2551', short: 'NTK',    long: 'Naam Tamilar Katchi' },
+  'IND':    { color: '#999966', short: 'IND',    long: 'Independent' },
+  'NOTA':   { color: '#5C5648', short: 'NOTA',   long: 'None of the Above' },
+  'AIFB':   { color: '#ff3333', short: 'AIFB',   long: 'AIFB' },
+  'BSP':    { color: '#000078', short: 'BSP',    long: 'BSP' },
+  'CPI(ML)(L)':{color:'#BC08A4',short: 'CPI(ML)L', long: 'CPI(ML) Liberation' },
+  'RJD':    { color: '#D6901B', short: 'RJD',    long: 'RJD' },
+  'Other':  { color: '#8B8676', short: 'Other',  long: 'Other parties' },
+};
+
+// map full party name → short code (used by the constituency rows)
+const NAME_TO_CODE = {
+  'Tamilaga Vettri Kazhagam': 'TVK',
+  'All India Anna Dravida Munnetra Kazhagam': 'ADMK',
+  'Dravida Munnetra Kazhagam': 'DMK',
+  'Pattali Makkal Katchi': 'PMK',
+  'Indian National Congress': 'INC',
+  'Bharatiya Janata Party': 'BJP',
+  'Desiya Murpokku Dravida Kazhagam': 'DMDK',
+  'Viduthalai Chiruthaigal Katchi': 'VCK',
+  'Communist Party of India': 'CPI',
+  'Indian Union Muslim League': 'IUML',
+  'Amma Makkal Munnettra Kazagam': 'AMMKMNKZ',
+  'Communist Party of India  (Marxist)': 'CPI(M)',
+  'Communist Party of India (Marxist)': 'CPI(M)',
+  'Naam Tamilar Katchi': 'NTK',
+  'Independent': 'IND',
+};
+
+const meta = c => PARTY_META[c] || { color: '#8B8676', short: c, long: c };
+const codeOf = n => NAME_TO_CODE[n] || n;
+
+const POLL_MS = 45000;
+let pollTimer = null;
+let isLoading = false;
+let prevState = null; // for flash highlight
+
+// ---- main render orchestrator ----
+async function refresh(force = false) {
+  if (isLoading) return;
+  isLoading = true;
+  const btn = document.getElementById('refreshBtn');
+  btn.classList.add('loading'); btn.disabled = true;
+  setStatus('fetching…', '');
+  try {
+    const url = force ? '/api/refresh' : '/api/data';
+    const r = await fetch(url, { cache: 'no-store' });
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const data = await r.json();
+    render(data);
+    setStatus('just now', '');
+  } catch (e) {
+    console.error(e);
+    setStatus('error · retrying', 'tag-error');
+  } finally {
+    isLoading = false;
+    btn.classList.remove('loading'); btn.disabled = false;
+    if (pollTimer) clearTimeout(pollTimer);
+    pollTimer = setTimeout(() => refresh(false), POLL_MS);
+  }
+}
+
+let lastFetchAt = null;
+function setStatus(text, cls) {
+  const el = document.getElementById('updatedAgo');
+  el.textContent = text;
+  el.className = cls || '';
+  if (cls === '') lastFetchAt = Date.now();
+}
+setInterval(() => {
+  if (!lastFetchAt) return;
+  const sec = Math.floor((Date.now() - lastFetchAt) / 1000);
+  if (sec < 5) return; // keep "just now"
+  const el = document.getElementById('updatedAgo');
+  if (el.classList.contains('tag-error')) return;
+  if (sec < 60) el.textContent = sec + 's ago';
+  else el.textContent = Math.floor(sec/60) + 'm ago';
+  el.classList.toggle('tag-stale', sec > POLL_MS/1000 + 10);
+}, 1000);
+
+document.getElementById('refreshBtn').addEventListener('click', () => refresh(true));
+
+// ---- render ----
+function render(data) {
+  const totalSeats = data.totalSeats || 234;
+  const majority   = data.majority || 118;
+  const parties = (data.parties || []).map(p => ({
+    ...p, code: p.code || codeOf(p.name), color: meta(p.code || codeOf(p.name)).color
+  })).filter(p => p.total > 0).sort((a,b) => b.total - a.total);
+
+  const top = parties[0];
+  const second = parties[1];
+  const short = Math.max(0, majority - (top ? top.total : 0));
+
+  // ---- masthead date ----
+  const d = new Date();
+  document.getElementById('dateNow').textContent =
+    d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+
+  // ---- headline ----
+  const hLeader = document.getElementById('hLeader');
+  if (top) {
+    hLeader.textContent = meta(top.code).short;
+    hLeader.style.color = meta(top.code).color;
+    document.getElementById('metaLeader').firstChild.nodeValue = meta(top.code).short;
+  }
+  const sh = document.getElementById('metaShort');
+  sh.firstChild.nodeValue = short === 0 ? 'past' : short.toLocaleString('en-IN');
+  document.getElementById('metaTotal').firstChild.nodeValue = totalSeats.toLocaleString('en-IN');
+  document.getElementById('metaParties').firstChild.nodeValue = parties.length.toString();
+
+  // ---- lede paragraph ----
+  const ledeP = document.getElementById('ledeP');
+  if (top && second) {
+    const t3 = parties[2];
+    const sentence = `${meta(top.code).long} leads in <strong>${top.total}</strong> of ${totalSeats} assembly seats — ${short > 0 ? `<strong>${short}</strong> short of a majority` : 'past the majority threshold'}, well ahead of ${meta(second.code).long} on <strong>${second.total}</strong>${t3 ? ` and ${meta(t3.code).long} on <strong>${t3.total}</strong>` : ''}. The numbers below reflect counting-day trends as posted by Returning Officers; final declarations follow.`;
+    ledeP.innerHTML = sentence;
+  }
+
+  // ---- ribbon ----
+  const ribbon = document.getElementById('ribbon');
+  ribbon.innerHTML = '';
+  const majLine = document.createElement('div');
+  majLine.className = 'majority-line';
+  majLine.style.left = `calc(${(majority / totalSeats) * 100}% - 1px)`;
+  ribbon.appendChild(majLine);
+
+  const flat = [];
+  parties.forEach(p => { for (let i = 0; i < p.total; i++) flat.push(p); });
+  flat.forEach((p, i) => {
+    const c = document.createElement('div');
+    c.className = 'cell';
+    c.style.background = p.color;
+    c.style.animationDelay = (0.1 + i * 0.005) + 's';
+    c.title = `${meta(p.code).short} · seat #${i+1}`;
+    ribbon.appendChild(c);
+  });
+
+  const key = document.getElementById('ribbonKey');
+  key.innerHTML = '';
+  parties.forEach(p => {
+    const el = document.createElement('span');
+    el.innerHTML = `<i style="background:${p.color}"></i>${meta(p.code).short} <span style="color:var(--paper-3); margin-left:4px;">${p.total}</span>`;
+    key.appendChild(el);
+  });
+
+  // ---- leaderboard ----
+  const lb = document.getElementById('lb');
+  lb.innerHTML = '';
+  const max = parties[0].total;
+  parties.forEach((p, i) => {
+    const row = document.createElement('div');
+    row.className = 'lb-row' + (i === 0 ? ' leader' : '');
+    row.style.setProperty('--clr', p.color);
+    row.style.animationDelay = (0.2 + i * 0.05) + 's';
+    const w = (p.total / max) * 100;
+    row.innerHTML = `
+      <div class="rank">${String(i+1).padStart(2,'0')}</div>
+      <div class="badge" style="border-left-color:${p.color}; color:${p.color};">${meta(p.code).short}</div>
+      <div class="meta">
+        <div class="pname">${meta(p.code).long}</div>
+        <div class="bar"><i style="--w:${w}%; --delay:${0.4 + i*0.05}s"></i></div>
+      </div>
+      <div class="seats">${p.total}<span class="lbl">seats</span></div>
+    `;
+    lb.appendChild(row);
+  });
+
+  // ---- donut ----
+  const svg = document.getElementById('donutSvg');
+  svg.innerHTML = '';
+  const cx=100, cy=100, r=84;
+  const C = 2 * Math.PI * r;
+  const ns = 'http://www.w3.org/2000/svg';
+  const bg = document.createElementNS(ns, 'circle');
+  bg.setAttribute('cx',cx);bg.setAttribute('cy',cy);bg.setAttribute('r',r);
+  bg.setAttribute('fill','none');bg.setAttribute('stroke','#1E1A14');bg.setAttribute('stroke-width',24);
+  svg.appendChild(bg);
+  let acc = 0;
+  parties.forEach((p, i) => {
+    const frac = p.total / totalSeats;
+    const len = frac * C;
+    const arc = document.createElementNS(ns, 'circle');
+    arc.setAttribute('cx',cx);arc.setAttribute('cy',cy);arc.setAttribute('r',r);
+    arc.setAttribute('class','arc');
+    arc.setAttribute('stroke', p.color);
+    arc.setAttribute('stroke-dasharray', `0 ${C}`);
+    arc.style.transformOrigin='center';
+    arc.style.transform = `rotate(${(acc/totalSeats)*360}deg)`;
+    svg.appendChild(arc);
+    setTimeout(() => {
+      arc.style.transition = `stroke-dasharray 1.1s cubic-bezier(.2,.8,.2,1) ${0.2 + i*0.06}s`;
+      arc.setAttribute('stroke-dasharray', `${Math.max(0, len-1.5)} ${C}`);
+    }, 30);
+    acc += p.total;
+  });
+  document.getElementById('donutTotal').textContent = totalSeats;
+
+  const dl = document.getElementById('donutLegend');
+  dl.innerHTML = '';
+  parties.forEach(p => {
+    const el = document.createElement('div');
+    const pct = ((p.total/totalSeats)*100).toFixed(1);
+    el.innerHTML = `<i style="background:${p.color}"></i>${meta(p.code).short}<strong>${pct}%</strong>`;
+    dl.appendChild(el);
+  });
+
+  // ---- vote share comparison ----
+  renderCompare(data, parties, totalSeats);
+
+  // ---- knife-edge ----
+  renderKnife(data);
+
+  // ---- flash highlight on changes ----
+  if (prevState) {
+    parties.forEach(p => {
+      const pk = prevState.find(x => x.code === p.code);
+      if (pk && pk.total !== p.total) {
+        // find the leaderboard row for this party and flash it
+        const rows = lb.querySelectorAll('.lb-row');
+        rows.forEach(r => {
+          if (r.querySelector('.badge').textContent === meta(p.code).short) {
+            r.classList.remove('flash'); void r.offsetWidth;
+            r.classList.add('flash');
+          }
+        });
+      }
+    });
+  }
+  prevState = parties.map(p => ({ code: p.code, total: p.total }));
+}
+
+function renderCompare(data, parties, totalSeats) {
+  const compare = document.getElementById('compare');
+  const voteShare = data.voteShare || [];
+  // pick top 5 parties by seats and look up their vote share
+  const top5 = parties.slice(0, 5);
+  let html = `<div class="h">Party</div><div class="h">Vote share</div><div class="h right">Seat share</div>`;
+  let voteHasTVK = voteShare.some(v => v.code === 'TVK');
+  const maxVote = Math.max(...voteShare.filter(v => v.percent != null).map(v => v.percent), 1);
+  const maxSeat = Math.max(...top5.map(p => (p.total/totalSeats)*100), 1);
+  top5.forEach(p => {
+    const vs = voteShare.find(v => v.code === p.code);
+    const seatPct = (p.total/totalSeats)*100;
+    const seatW = (seatPct/maxSeat)*100;
+    let voteCell;
+    if (vs && vs.percent != null) {
+      const w = (vs.percent / maxVote) * 100;
+      voteCell = `<div class="bar2"><i style="--w:${w}%"></i><span class="num">${vs.percent.toFixed(1)}%</span></div>`;
+    } else {
+      voteCell = `<div class="bar2"><i style="--w:0%"></i><span class="num" style="color:var(--paper-3);">n/a*</span></div>`;
+    }
+    html += `<div class="row" style="--clr:${p.color};">
+      <div class="party">${meta(p.code).short}</div>
+      ${voteCell}
+      <div class="col-right"><span class="num" style="color:${p.color}; font-weight:700;">${seatPct.toFixed(1)}%</span><div class="bar2 flip"><i style="--w:${seatW}%"></i></div></div>
+    </div>`;
+  });
+  compare.innerHTML = html;
+
+  const note = document.getElementById('anomalyFoot');
+  if (!voteHasTVK) {
+    note.textContent = '* TVK vote share appears bundled in the ECI feed\'s "Other" category at this counting stage.';
+  } else {
+    note.textContent = '';
+  }
+
+  // dynamic anomaly headline based on data
+  const top = parties[0];
+  const dmkLike = parties.find(p => p.code === 'DMK');
+  if (top && dmkLike && top.code !== 'DMK') {
+    const dmkVote = voteShare.find(v => v.code === 'DMK');
+    const topVote = voteShare.find(v => v.code === top.code);
+    const h = document.getElementById('anomalyH');
+    if (dmkVote && (!topVote || dmkVote.percent > (topVote.percent || 0))) {
+      h.innerHTML = `The DMK pulled <em>more votes</em>, and far <em>fewer seats</em>.`;
+      document.getElementById('anomalyP').textContent = `Counting-day vote share posts the DMK ahead at ${dmkVote.percent.toFixed(2)}% — but its support concentrates in fewer constituencies than the ${meta(top.code).short}'s broader, thinner spread, which converts into a seat lead of ${top.total} to ${dmkLike.total}.`;
+    }
+  }
+}
+
+function renderKnife(data) {
+  const tbody = document.getElementById('knifeBody');
+  tbody.innerHTML = '';
+  const all = (data.constituencies || []).slice();
+  if (all.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="7" style="padding: 32px; text-align:center; color: var(--paper-3); font-style:italic;">No constituency data available yet.</td></tr>`;
+    document.getElementById('knifeFoot').textContent = '';
+    return;
+  }
+  all.sort((a,b) => a.margin - b.margin);
+  const top = all.slice(0, 12);
+  const RAZOR = 1000;
+  let razorCount = 0;
+  top.forEach((c, i) => {
+    const lc = codeOf(c.leadParty);
+    const tc = codeOf(c.trailParty);
+    const lcM = meta(lc), tcM = meta(tc);
+    const isRazor = c.margin <= RAZOR;
+    if (isRazor) razorCount++;
+    const tr = document.createElement('tr');
+    tr.className = isRazor ? 'razor' : '';
+    tr.style.animationDelay = (0.1 + i * 0.04) + 's';
+    tr.innerHTML = `
+      <td class="rank">${String(i+1).padStart(2,'0')}</td>
+      <td class="const">${escapeHtml(c.name)}<small>AC ${c.no}</small></td>
+      <td><div class="cand-cell" style="--clr:${lcM.color}"><span class="nm">${escapeHtml(c.leadCand || '—')}</span><span class="pty">${lcM.short}</span></div></td>
+      <td class="vs">vs</td>
+      <td><div class="cand-cell" style="--clr:${tcM.color}"><span class="nm">${escapeHtml(c.trailCand || '—')}</span><span class="pty">${tcM.short}</span></div></td>
+      <td><span style="font-family:var(--mono); font-size:11px; letter-spacing:0.06em; color:var(--paper-3);">R ${escapeHtml(c.round || '—')}</span></td>
+      <td class="margin">${c.margin.toLocaleString('en-IN')}<small>votes</small></td>
+    `;
+    tbody.appendChild(tr);
+  });
+  const sub = document.getElementById('knifeSub');
+  sub.textContent = `Tightest ${top.length} of ${all.length} races · ${razorCount} within ${RAZOR.toLocaleString('en-IN')} votes`;
+  const foot = document.getElementById('knifeFoot');
+  if (razorCount > 0) {
+    foot.innerHTML = `<span style="color:var(--kumkum); font-weight:700;">${razorCount} razor-thin race${razorCount > 1 ? 's' : ''}</span> — margin under 1,000 votes. Single counting round can flip the lead.`;
+  } else {
+    foot.textContent = 'Closest race: ' + top[0].margin.toLocaleString('en-IN') + ' votes — well above razor threshold.';
+  }
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+// ---- kick off ----
+refresh(false);
+</script>
+</body>
+</html>
