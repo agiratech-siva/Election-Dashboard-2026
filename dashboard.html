@@ -2506,24 +2506,30 @@
 
       const sortedParties = Array.from(parties).sort();
 
-      const leadSelect = document.getElementById('knifeLeadFilter');
+      const leadSelect  = document.getElementById('knifeLeadFilter');
       const trailSelect = document.getElementById('knifeTrailFilter');
 
-      // Clear existing options except the first one
-      leadSelect.innerHTML = '<option value="">Leading party…</option>';
-      trailSelect.innerHTML = '<option value="">Trailing party…</option>';
+      // Preserve current selections before rebuilding
+      const prevLead  = leadSelect?.value  || '';
+      const prevTrail = trailSelect?.value || '';
+
+      leadSelect.innerHTML  = '<option value="">All Leading\u2026</option>';
+      trailSelect.innerHTML = '<option value="">All Trailing\u2026</option>';
 
       sortedParties.forEach(party => {
-        const option1 = document.createElement('option');
-        option1.value = party.toLowerCase();
-        option1.textContent = party;
-        leadSelect.appendChild(option1);
+        const v = party.toLowerCase();
+        const o1 = document.createElement('option');
+        o1.value = v; o1.textContent = party;
+        leadSelect.appendChild(o1);
 
-        const option2 = document.createElement('option');
-        option2.value = party.toLowerCase();
-        option2.textContent = party;
-        trailSelect.appendChild(option2);
+        const o2 = document.createElement('option');
+        o2.value = v; o2.textContent = party;
+        trailSelect.appendChild(o2);
       });
+
+      // Restore selections — value is ignored silently if the party is no longer present
+      if (prevLead)  leadSelect.value  = prevLead;
+      if (prevTrail) trailSelect.value = prevTrail;
     }
 
     function getKnifeFiltered() {
